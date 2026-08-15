@@ -75,16 +75,13 @@ body {
 .screen {
     position: absolute;
 
-    /* CENTER OF THE LCD OPENING */
-    left: 50%;
-    top: 46%;
+    /* keep top-right fixed */
+    left: 33.5%;
+    top: 23.7%;
 
-    /* slightly smaller */
-    width: 33.5%;
-    height: 42.8%;
-
-    /* center the screen on that point */
-    transform: translate(-50%, -50%);
+    /* smaller from bottom-left */
+    width: calc(33.5% - 3mm);
+    height: calc(42.8% - 3mm);
 
     z-index: 10;
 
