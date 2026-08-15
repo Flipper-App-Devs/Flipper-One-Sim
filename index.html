@@ -71,19 +71,16 @@ body {
    ONLY THIS ELEMENT MOVES.
    THE IMAGE ABOVE NEVER MOVES.
    ========================================================= */
-
 .screen {
     position: absolute;
 
-    /* CENTER OF THE PHYSICAL SCREEN HOLE */
     left: 50.25%;
     top: 45.1%;
 
-    /* LCD size */
-    width: 33.5%;
+    /* slightly shorter from the LEFT side */
+    width: calc(33.5% - 3mm);
     height: 42.8%;
 
-    /* Center the LCD around the hole */
     transform: translate(-50%, -50%);
 
     z-index: 10;
@@ -105,7 +102,6 @@ body {
         inset 0 0 0 2px rgba(55, 20, 0, 0.25),
         inset 0 0 14px rgba(90, 30, 0, 0.18);
 }
-
 
 /* =========================================================
    TOP BAR
