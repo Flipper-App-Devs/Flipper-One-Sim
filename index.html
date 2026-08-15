@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flipper One Simulator</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  background: #111;
+  overflow: hidden;
+  font-family: monospace;
+}
+
+/* Device */
+.device {
+  position: relative;
+  width: min(100vw, 1024px);
+  aspect-ratio: 1024 / 448;
+  margin: auto;
+  top: 50%;
+  transform: translateY(-50%);
+  background: url("flipperone-shell-overlay-1024.jpg")
+              center / 100% 100% no-repeat;
+}
+
+/*
+  Screen position based on your uploaded image.
+
+  Image:
+  1024 x 448
+
+  Screen:
+  approximately x=344
+  y=112
+  width=356
+  height=198
+*/
+
+.screen {
+  position: absolute;
+
+  left: 33.6%;
+  top: 24.8%;
+  width: 34.8%;
+  height: 44.2%;
+
+  background: #9bbc0f;
+  color: #102000;
+
+  border: 0;
+  border-radius: 2px;
+
+  padding: 10px;
+
+  overflow: hidden;
+
+  image-rendering: pixelated;
+  font-family: monospace;
+
+  box-shadow:
+    inset 0 0 0 2px rgba(0,0,0,.25),
+    inset 0 0 18px rgba(0,0,0,.15);
+}
+
+/* Screen content */
+
+.status {
+  display: flex;
+  justify-content: space-between;
+
+  border-bottom: 2px solid #315000;
+  padding-bottom: 5px;
+
+  font-size: 11px;
+}
+
+.title {
+  text-align: center;
+  font-size: 16px;
+  font-weight: bold;
+  margin: 8px 0;
+}
+
+.menu {
+  list-style: none;
+  padding: 0;
+  margin: 4px 0;
+}
+
+.menu li {
+  padding: 5px 7px;
+  margin: 2px 0;
+  font-size: 13px;
+}
+
+.menu li.selected {
+  background: #102000;
+  color: #9bbc0f;
+}
+
+.info {
+  margin-top: 8px;
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+/* Invisible clickable controls over the physical buttons */
+
+.control {
+  position: absolute;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  z-index: 10;
+}
+
+/* Orange D-pad */
+
+.up {
+  left: 75.0%;
+  top: 31%;
+  width: 10%;
+  height: 9%;
+}
+
+.down {
+  left: 75.0%;
+  top: 48%;
+  width: 10%;
+  height: 9%;
+}
+
+.left {
+  left: 72%;
+  top: 39%;
+  width: 8%;
+  height: 12%;
+}
+
+.right {
+  left: 80%;
+  top: 39%;
+  width: 8%;
+  height: 12%;
+}
+
+/* Orange center button */
+.ok {
+  left: 78%;
+  top: 37%;
+  width: 5%;
+  height: 10%;
+  border-radius: 50%;
+}
+
+/* Back button */
+.back {
+  left: 84.5%;
+  top: 58%;
+  width: 7%;
+  height: 11%;
+  border-radius: 50%;
+}
+
+/* Bottom buttons */
+.bottom-back {
+  left: 34%;
+  top: 74%;
+  width: 6%;
+  height: 8%;
+}
+
+.bottom-menu {
+  left: 55%;
+  top: 74%;
+  width: 6%;
+  height: 8%;
+}
+
+/* Prevent accidental selection */
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:active {
+  outline: none;
+}
+
+/* Mobile scaling */
+@media (max-width: 600px) {
+  .device {
+    width: 100vw;
+  }
+
+  .screen {
+    padding: 6px;
+  }
+
+  .title {
+    font-size: 11px;
+    margin: 4px 0;
+  }
+
+  .menu li {
+    padding: 3px 5px;
+    font-size: 9px;
+  }
+
+  .status {
+    font-size: 8px;
+  }
+
+  .info {
+    font-size: 7px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="device">
+
+  <!-- Actual simulator screen -->
+  <div id="screen" class="screen"></div>
+
+  <!-- Physical controls -->
+  <button class="control up" onclick="move(-1)"></button>
+  <button class="control down" onclick="move(1)"></button>
+  <button class="control left" onclick="back()"></button>
+  <button class="control right" onclick="select()"></button>
+
+  <button class="control ok" onclick="select()"></button>
+  <button class="control back" onclick="back()"></button>
+
+  <button class="control bottom-back" onclick="back()"></button>
+  <button class="control bottom-menu" onclick="toggleMenu()"></button>
+
+</div>
+
+<script>
+
+const apps = [
+  {
+    icon: "◈",
+    name: "Sub-GHz"
+  },
+  {
+    icon: "▣",
+    name: "NFC"
+  },
+  {
+    icon: "●",
+    name: "Infrared"
+  },
+  {
+    icon: "◇",
+    name: "GPIO"
+  },
+  {
+    icon: "◆",
+    name: "Games"
+  },
+  {
+    icon: "⚙",
+    name: "Settings"
+  }
+];
+
+let selected = 0;
+let page = "home";
+
+const screen = document.getElementById("screen");
+
+function renderHome() {
+
+  page = "home";
+
+  screen.innerHTML = `
+    <div class="status">
+      <span>FLIPPER ONE</span>
+      <span>BAT 87%</span>
+    </div>
+
+    <div class="title">Applications</div>
+
+    <ul class="menu">
+      ${apps.map((app, i) => `
+        <li class="${i === selected ? "selected" : ""}">
+          ${app.icon} ${app.name}
+        </li>
+      `).join("")}
+    </ul>
+
+    <div class="info">
+      ▲ ▼ Navigate<br>
+      ● Select
+    </div>
+  `;
+}
+
+function move(amount) {
+
+  if (page !== "home") return;
+
+  selected += amount;
+
+  if (selected < 0)
+    selected = apps.length - 1;
+
+  if (selected >= apps.length)
+    selected = 0;
+
+  renderHome();
+}
+
+function select() {
+
+  if (page !== "home") return;
+
+  const app = apps[selected].name;
+
+  page = app;
+
+  screen.innerHTML = `
+    <div class="status">
+      <span>${app}</span>
+      <span>BAT 87%</span>
+    </div>
+
+    <div class="title">${app}</div>
+
+    <ul class="menu">
+      <li class="selected">▶ Start</li>
+      <li>Saved Data</li>
+      <li>Settings</li>
+    </ul>
+
+    <div class="info">
+      Simulator mode.<br>
+      Hardware functions are virtual.
+    </div>
+  `;
+}
+
+function back() {
+
+  if (page !== "home") {
+    renderHome();
+  }
+}
+
+function toggleMenu() {
+
+  if (page !== "home") {
+    renderHome();
+    return;
+  }
+
+  selected = 0;
+  renderHome();
+}
+
+/* Keyboard controls */
+
+document.addEventListener("keydown", e => {
+
+  switch (e.key) {
+
+    case "ArrowUp":
+      move(-1);
+      break;
+
+    case "ArrowDown":
+      move(1);
+      break;
+
+    case "ArrowRight":
+    case "Enter":
+      select();
+      break;
+
+    case "ArrowLeft":
+    case "Escape":
+    case "Backspace":
+      back();
+      break;
+  }
+
+});
+
+renderHome();
+
+</script>
+
+</body>
+</html>
