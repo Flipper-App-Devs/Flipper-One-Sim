@@ -7,6 +7,7 @@
 <title>Flipper One Simulator</title>
 
 <style>
+
 * {
     box-sizing: border-box;
 }
@@ -45,7 +46,9 @@ body {
 
 
 /* =========================================================
-   FIXED FLIPPER IMAGE
+   FIXED OVERLAY IMAGE
+
+   THIS NEVER MOVES
    ========================================================= */
 
 .device-image {
@@ -68,13 +71,13 @@ body {
 /* =========================================================
    LCD SCREEN
 
-   ONLY THIS ELEMENT MOVES.
-   THE IMAGE ABOVE NEVER MOVES.
+   ONLY THE LCD MOVES
    ========================================================= */
+
 .screen {
     position: absolute;
 
-    left: 50.25%;
+    left: calc(50.25% + 3mm);
     top: 45.1%;
 
     width: calc(33.5% - 2mm);
@@ -85,11 +88,13 @@ body {
     z-index: 10;
 
     background: #f28c28;
+
     color: #321400;
 
     padding: 8px;
 
     border: none;
+
     border-radius: 2px;
 
     overflow: hidden;
@@ -102,12 +107,15 @@ body {
 }
 
 
-/* TOP BAR — RESTORED */
+/* =========================================================
+   TOP BAR
+   ========================================================= */
 
 .status {
     display: flex;
 
     align-items: center;
+
     justify-content: space-between;
 
     background: #d96f18;
@@ -129,32 +137,6 @@ body {
     flex-shrink: 0;
 }
 
-/* TOP BAR — RESTORED */
-
-.status {
-    display: flex;
-
-    align-items: center;
-    justify-content: space-between;
-
-    background: #d96f18;
-
-    color: #241000;
-
-    margin: -8px -8px 0 -8px;
-
-    padding: 5px 8px;
-
-    height: 24px;
-
-    border-bottom: 2px solid #a84d0d;
-
-    font-size: 10px;
-
-    font-weight: bold;
-
-    flex-shrink: 0;
-}
 
 /* =========================================================
    TITLE
@@ -167,7 +149,7 @@ body {
 
     font-weight: bold;
 
-    margin: 6px 0;
+    margin: 5px 0;
 
     height: 18px;
 
@@ -178,7 +160,7 @@ body {
 
 
 /* =========================================================
-   REAL SCROLLING MENU
+   MENU WINDOW
    ========================================================= */
 
 .menu-window {
@@ -189,13 +171,11 @@ body {
     height: 122px;
 
     overflow-y: auto;
+
     overflow-x: hidden;
 
-    /*
-       Hide native scrollbar
-    */
-
     scrollbar-width: none;
+
     -ms-overflow-style: none;
 }
 
@@ -216,11 +196,6 @@ body {
 
     width: 100%;
 }
-
-
-/* =========================================================
-   APP ROW
-   ========================================================= */
 
 .menu li {
     height: 22px;
@@ -244,11 +219,6 @@ body {
     border-radius: 2px;
 }
 
-
-/* =========================================================
-   SELECTED APP
-   ========================================================= */
-
 .menu li.selected {
     background: #321400;
 
@@ -257,40 +227,44 @@ body {
 
 
 /* =========================================================
-   SCROLL INDICATOR
+   SCROLLBAR
    ========================================================= */
 
 .scrollbar {
     position: absolute;
 
-    right: 1px;
     top: 0;
+    right: 1px;
 
     width: 3px;
     height: 100%;
 
-    background: rgba(60, 20, 0, 0.12);
+    background: rgba(60, 20, 0, 0.15);
 
     border-radius: 3px;
 
     pointer-events: none;
+
+    z-index: 5;
 }
 
 .scroll-thumb {
     position: absolute;
 
-    left: 0;
+    top: 0;
+    right: 0;
 
     width: 3px;
 
-    min-height: 20px;
+    min-height: 18px;
 
     background: #321400;
 
     border-radius: 3px;
 
     transition:
-        top 0.12s ease;
+        top 0.1s ease,
+        height 0.1s ease;
 }
 
 
@@ -319,7 +293,85 @@ body {
 
 
 /* =========================================================
-   INVISIBLE BUTTON HIT AREAS
+   GENERIC APP CONTENT
+   ========================================================= */
+
+.app-content {
+    height: 122px;
+
+    overflow-y: auto;
+
+    overflow-x: hidden;
+
+    scrollbar-width: none;
+}
+
+.app-content::-webkit-scrollbar {
+    display: none;
+}
+
+.app-line {
+    height: 21px;
+
+    line-height: 21px;
+
+    padding: 0 6px;
+
+    font-size: 10px;
+
+    white-space: nowrap;
+}
+
+.app-line.selected {
+    background: #321400;
+
+    color: #f28c28;
+}
+
+
+/* =========================================================
+   TERMINAL
+   ========================================================= */
+
+.terminal {
+    height: 122px;
+
+    overflow-y: auto;
+
+    font-size: 9px;
+
+    line-height: 13px;
+
+    white-space: pre-wrap;
+
+    padding: 2px 4px;
+
+    scrollbar-width: none;
+}
+
+.terminal::-webkit-scrollbar {
+    display: none;
+}
+
+.terminal-input {
+    width: 100%;
+
+    border: none;
+
+    outline: none;
+
+    background: transparent;
+
+    color: #321400;
+
+    font-family: monospace;
+
+    font-size: 9px;
+}
+
+
+/* =========================================================
+   BUTTONS
    ========================================================= */
 
 .control {
@@ -341,7 +393,7 @@ body {
 
 
 /* =========================================================
-   UP
+   D-PAD
    ========================================================= */
 
 .up {
@@ -352,11 +404,6 @@ body {
     height: 11%;
 }
 
-
-/* =========================================================
-   DOWN
-   ========================================================= */
-
 .down {
     left: 72.5%;
     top: 47%;
@@ -364,11 +411,6 @@ body {
     width: 10%;
     height: 11%;
 }
-
-
-/* =========================================================
-   LEFT
-   ========================================================= */
 
 .left {
     left: 70%;
@@ -378,11 +420,6 @@ body {
     height: 13%;
 }
 
-
-/* =========================================================
-   RIGHT
-   ========================================================= */
-
 .right {
     left: 79%;
     top: 37%;
@@ -390,11 +427,6 @@ body {
     width: 9%;
     height: 13%;
 }
-
-
-/* =========================================================
-   OK
-   ========================================================= */
 
 .ok {
     left: 76%;
@@ -423,7 +455,7 @@ body {
 
 
 /* =========================================================
-   BOTTOM LEFT
+   BOTTOM BUTTONS
    ========================================================= */
 
 .bottom-left {
@@ -433,11 +465,6 @@ body {
     width: 7%;
     height: 8%;
 }
-
-
-/* =========================================================
-   BOTTOM RIGHT
-   ========================================================= */
 
 .bottom-right {
     left: 61%;
@@ -478,7 +505,8 @@ body {
         margin: 3px 0;
     }
 
-    .menu-window {
+    .menu-window,
+    .app-content {
         height: 88px;
     }
 
@@ -507,82 +535,66 @@ body {
 
 <div id="app">
 
-    <div class="device">
+<div class="device">
 
-        <!-- =================================================
-             FIXED OVERLAY IMAGE
-             ================================================= -->
-
-        <img
-            class="device-image"
-            src="./flipperone-shell-overlay.png"
-            alt="Flipper One"
-        >
+    <!-- FIXED DEVICE IMAGE -->
+    <img
+        class="device-image"
+        src="./flipperone-shell-overlay.png"
+        alt="Flipper One"
+    >
 
 
-        <!-- =================================================
-             ORANGE LCD
-             ================================================= -->
-
-        <div
-            id="screen"
-            class="screen">
-        </div>
-
-
-        <!-- =================================================
-             BUTTON HIT AREAS
-             ================================================= -->
-
-        <button
-            class="control up"
-            onclick="move(-1)"
-            aria-label="Up">
-        </button>
-
-        <button
-            class="control down"
-            onclick="move(1)"
-            aria-label="Down">
-        </button>
-
-        <button
-            class="control left"
-            onclick="back()"
-            aria-label="Back">
-        </button>
-
-        <button
-            class="control right"
-            onclick="select()"
-            aria-label="Select">
-        </button>
-
-        <button
-            class="control ok"
-            onclick="select()"
-            aria-label="OK">
-        </button>
-
-        <button
-            class="control back"
-            onclick="back()"
-            aria-label="Back">
-        </button>
-
-        <button
-            class="control bottom-left"
-            onclick="back()"
-            aria-label="Back">
-        </button>
-
-        <button
-            class="control bottom-right"
-            onclick="home()"
-            aria-label="Home">
-        </button>
-
+    <!-- LCD -->
+    <div
+        id="screen"
+        class="screen">
     </div>
+
+
+    <!-- INVISIBLE BUTTON HIT AREAS -->
+
+    <button
+        class="control up"
+        onclick="move(-1)">
+    </button>
+
+    <button
+        class="control down"
+        onclick="move(1)">
+    </button>
+
+    <button
+        class="control left"
+        onclick="back()">
+    </button>
+
+    <button
+        class="control right"
+        onclick="select()">
+    </button>
+
+    <button
+        class="control ok"
+        onclick="select()">
+    </button>
+
+    <button
+        class="control back"
+        onclick="back()">
+    </button>
+
+    <button
+        class="control bottom-left"
+        onclick="back()">
+    </button>
+
+    <button
+        class="control bottom-right"
+        onclick="home()">
+    </button>
+
+</div>
 
 </div>
 
@@ -590,7 +602,7 @@ body {
 <script>
 
 /* =========================================================
-   FLIPPER ONE APPS
+   APPS
    ========================================================= */
 
 const apps = [
@@ -666,12 +678,24 @@ let selected = 0;
 
 let page = "home";
 
+let appSelected = 0;
+
+let terminalHistory = [
+    "FLIPPER ONE TERMINAL",
+    "Type 'help' for commands."
+];
+
+
+/* =========================================================
+   DOM
+   ========================================================= */
+
 const screen =
     document.getElementById("screen");
 
 
 /* =========================================================
-   RENDER HOME
+   HOME
    ========================================================= */
 
 function renderHome() {
@@ -711,19 +735,19 @@ function renderHome() {
                 ${
                     apps.map((app, index) => `
 
-                        <li
-                            data-index="${index}"
-                            class="${
-                                index === selected
-                                    ? "selected"
-                                    : ""
-                            }"
-                        >
+                    <li
+                        data-index="${index}"
+                        class="${
+                            index === selected
+                                ? "selected"
+                                : ""
+                        }"
+                    >
 
-                            ${app.icon}
-                            ${app.name}
+                        ${app.icon}
+                        ${app.name}
 
-                        </li>
+                    </li>
 
                     `).join("")
                 }
@@ -731,15 +755,12 @@ function renderHome() {
             </ul>
 
 
-            <div
-                class="scrollbar"
-                id="scrollbar"
-            >
+            <div class="scrollbar">
 
                 <div
                     class="scroll-thumb"
-                    id="scrollThumb"
-                ></div>
+                    id="scrollThumb">
+                </div>
 
             </div>
 
@@ -749,19 +770,25 @@ function renderHome() {
         <div class="info">
 
             ▲ ▼ Navigate
-            &nbsp;&nbsp;
-            ▶ Select
+            &nbsp; ▶ Open
 
         </div>
-
     `;
 
 
-    /*
-       Wait until DOM is rendered.
-    */
-
     requestAnimationFrame(() => {
+
+        const menuWindow =
+            document.getElementById("menuWindow");
+
+        if (menuWindow) {
+
+            menuWindow.addEventListener(
+                "scroll",
+                updateScrollbar
+            );
+
+        }
 
         scrollToSelected();
 
@@ -777,7 +804,7 @@ function renderHome() {
 
 function scrollToSelected() {
 
-    const windowElement =
+    const menuWindow =
         document.getElementById("menuWindow");
 
     const item =
@@ -786,40 +813,40 @@ function scrollToSelected() {
         );
 
 
-    if (!windowElement || !item) {
+    if (!menuWindow || !item) {
         return;
     }
 
-
-    /*
-       Real native scrolling.
-    */
 
     const itemTop =
         item.offsetTop;
 
     const itemBottom =
-        itemTop + item.offsetHeight;
+        itemTop +
+        item.offsetHeight;
 
-    const viewTop =
-        windowElement.scrollTop;
+    const visibleTop =
+        menuWindow.scrollTop;
 
-    const viewBottom =
-        viewTop +
-        windowElement.clientHeight;
+    const visibleBottom =
+        visibleTop +
+        menuWindow.clientHeight;
 
 
-    if (itemTop < viewTop) {
+    if (itemTop < visibleTop) {
 
-        windowElement.scrollTop =
+        menuWindow.scrollTop =
             itemTop;
 
     }
-    else if (itemBottom > viewBottom) {
+    else if (
+        itemBottom >
+        visibleBottom
+    ) {
 
-        windowElement.scrollTop =
+        menuWindow.scrollTop =
             itemBottom -
-            windowElement.clientHeight;
+            menuWindow.clientHeight;
 
     }
 
@@ -834,52 +861,56 @@ function scrollToSelected() {
 
 function updateScrollbar() {
 
-    const windowElement =
+    const menuWindow =
         document.getElementById("menuWindow");
 
     const thumb =
         document.getElementById("scrollThumb");
 
 
-    if (!windowElement || !thumb) {
+    if (!menuWindow || !thumb) {
         return;
     }
 
 
+    const scrollHeight =
+        menuWindow.scrollHeight;
+
+    const visibleHeight =
+        menuWindow.clientHeight;
+
     const maxScroll =
-        windowElement.scrollHeight -
-        windowElement.clientHeight;
+        scrollHeight -
+        visibleHeight;
 
 
     if (maxScroll <= 0) {
 
-        thumb.style.height = "100%";
-        thumb.style.top = "0";
+        thumb.style.height = "0px";
+        thumb.style.top = "0px";
 
         return;
     }
 
 
-    const visibleRatio =
-        windowElement.clientHeight /
-        windowElement.scrollHeight;
-
-
     const thumbHeight =
         Math.max(
-            20,
-            windowElement.clientHeight *
-            visibleRatio
+            18,
+            (
+                visibleHeight /
+                scrollHeight
+            ) *
+            visibleHeight
         );
 
 
-    const travel =
-        windowElement.clientHeight -
+    const maxThumbTop =
+        visibleHeight -
         thumbHeight;
 
 
-    const percentage =
-        windowElement.scrollTop /
+    const scrollPercent =
+        menuWindow.scrollTop /
         maxScroll;
 
 
@@ -887,30 +918,8 @@ function updateScrollbar() {
         `${thumbHeight}px`;
 
     thumb.style.top =
-        `${travel * percentage}px`;
+        `${scrollPercent * maxThumbTop}px`;
 }
-
-
-/* =========================================================
-   NATIVE SCROLL EVENT
-   ========================================================= */
-
-document.addEventListener(
-    "scroll",
-    function(event) {
-
-        if (
-            event.target &&
-            event.target.id === "menuWindow"
-        ) {
-
-            updateScrollbar();
-
-        }
-
-    },
-    true
-);
 
 
 /* =========================================================
@@ -919,30 +928,108 @@ document.addEventListener(
 
 function move(direction) {
 
-    if (page !== "home") {
+    if (page === "home") {
+
+        selected += direction;
+
+
+        if (selected < 0) {
+
+            selected =
+                apps.length - 1;
+
+        }
+
+
+        if (
+            selected >=
+            apps.length
+        ) {
+
+            selected = 0;
+
+        }
+
+
+        renderHome();
+
         return;
     }
 
 
-    selected += direction;
+    if (
+        page === "Wi-Fi" ||
+        page === "Network" ||
+        page === "Radio / SDR" ||
+        page === "Satellite" ||
+        page === "Settings" ||
+        page === "Tools" ||
+        page === "Files" ||
+        page === "Apps" ||
+        page === "Modules"
+    ) {
+
+        moveAppMenu(direction);
+
+    }
+}
 
 
-    if (selected < 0) {
+/* =========================================================
+   APP MENU NAVIGATION
+   ========================================================= */
 
-        selected =
-            apps.length - 1;
+function moveAppMenu(direction) {
+
+    const items =
+        document.querySelectorAll(
+            ".app-line"
+        );
+
+
+    if (!items.length) {
+        return;
+    }
+
+
+    appSelected += direction;
+
+
+    if (appSelected < 0) {
+
+        appSelected =
+            items.length - 1;
 
     }
 
 
-    if (selected >= apps.length) {
+    if (
+        appSelected >=
+        items.length
+    ) {
 
-        selected = 0;
+        appSelected = 0;
 
     }
 
 
-    renderHome();
+    items.forEach(
+        (item, index) => {
+
+            item.classList.toggle(
+                "selected",
+                index === appSelected
+            );
+
+        }
+    );
+
+
+    items[
+        appSelected
+    ].scrollIntoView({
+        block: "nearest"
+    });
 }
 
 
@@ -952,26 +1039,137 @@ function move(direction) {
 
 function select() {
 
-    if (page !== "home") {
+    if (page === "home") {
+
+        openApp(
+            apps[selected].name
+        );
+
         return;
     }
 
 
-    const app =
-        apps[selected];
+    handleAppSelect();
+}
 
 
-    page =
-        app.name;
+/* =========================================================
+   OPEN APP
+   ========================================================= */
 
+function openApp(name) {
+
+    page = name;
+
+    appSelected = 0;
+
+
+    switch (name) {
+
+        case "Radio / SDR":
+
+            renderRadio();
+
+            break;
+
+
+        case "Network":
+
+            renderNetwork();
+
+            break;
+
+
+        case "Wi-Fi":
+
+            renderWifi();
+
+            break;
+
+
+        case "Cellular":
+
+            renderCellular();
+
+            break;
+
+
+        case "Satellite":
+
+            renderSatellite();
+
+            break;
+
+
+        case "AI":
+
+            renderAI();
+
+            break;
+
+
+        case "Terminal":
+
+            renderTerminal();
+
+            break;
+
+
+        case "Tools":
+
+            renderTools();
+
+            break;
+
+
+        case "Files":
+
+            renderFiles();
+
+            break;
+
+
+        case "Settings":
+
+            renderSettings();
+
+            break;
+
+
+        case "Apps":
+
+            renderApps();
+
+            break;
+
+
+        case "Modules":
+
+            renderModules();
+
+            break;
+
+    }
+}
+
+
+/* =========================================================
+   GENERIC APP
+   ========================================================= */
+
+function appFrame(
+    icon,
+    name,
+    rows,
+    info = "▲ ▼ Navigate   ▶ Select"
+) {
 
     screen.innerHTML = `
 
         <div class="status">
 
             <span>
-                ${app.icon}
-                ${app.name}
+                ${icon} ${name}
             </span>
 
             <span>
@@ -982,48 +1180,551 @@ function select() {
 
 
         <div class="title">
-
-            ${app.icon}
-            ${app.name}
-
+            ${name}
         </div>
 
 
         <div
-            class="menu-window"
+            class="app-content"
+            id="appContent"
         >
 
-            <ul class="menu">
+            ${
+                rows.map(
+                    (row, index) => `
 
-                <li class="selected">
-                    ▶ Start
-                </li>
+                    <div
+                        class="app-line ${
+                            index === 0
+                                ? "selected"
+                                : ""
+                        }"
+                    >
+                        ${row}
+                    </div>
 
-                <li>
-                    Options
-                </li>
-
-                <li>
-                    Saved Data
-                </li>
-
-                <li>
-                    About
-                </li>
-
-            </ul>
+                `
+                ).join("")
+            }
 
         </div>
 
 
         <div class="info">
-
-            FLIPPER ONE<br>
-            Virtual environment.
-
+            ${info}
         </div>
 
     `;
+}
+
+
+/* =========================================================
+   RADIO / SDR
+   ========================================================= */
+
+function renderRadio() {
+
+    appFrame(
+        "📡",
+        "Radio / SDR",
+        [
+            "▶ 433.920 MHz",
+            "   868.000 MHz",
+            "   915.000 MHz",
+            "   2.400 GHz",
+            "   Scan Spectrum",
+            "   Signal Monitor"
+        ]
+    );
+}
+
+
+function radioAction() {
+
+    const items =
+        document.querySelectorAll(
+            ".app-line"
+        );
+
+
+    if (appSelected === 4) {
+
+        items[4].textContent =
+            "▶ SCANNING...";
+
+        setTimeout(() => {
+
+            items[4].textContent =
+                "▶ Signal: -61 dBm";
+
+        }, 1000);
+
+    }
+}
+
+
+/* =========================================================
+   NETWORK
+   ========================================================= */
+
+function renderNetwork() {
+
+    appFrame(
+        "🌐",
+        "Network",
+        [
+            "▶ Network Status",
+            "   Scan Devices",
+            "   Local Gateway",
+            "   DNS Test",
+            "   Ping Test",
+            "   MAC Address"
+        ]
+    );
+}
+
+
+/* =========================================================
+   WIFI
+   ========================================================= */
+
+function renderWifi() {
+
+    appFrame(
+        "📶",
+        "Wi-Fi",
+        [
+            "▶ Scan Networks",
+            "   HomeNet       -42 dBm",
+            "   FLIPPER-LAB   -57 dBm",
+            "   Guest_WiFi    -68 dBm",
+            "   CoffeeShop    -74 dBm",
+            "   Network Info"
+        ]
+    );
+}
+
+
+function wifiAction() {
+
+    if (appSelected === 0) {
+
+        const first =
+            document.querySelector(
+                ".app-line"
+            );
+
+        first.textContent =
+            "▶ SCANNING Wi-Fi...";
+
+
+        setTimeout(() => {
+
+            first.textContent =
+                "▶ 7 NETWORKS FOUND";
+
+        }, 1000);
+
+    }
+}
+
+
+/* =========================================================
+   CELLULAR
+   ========================================================= */
+
+function renderCellular() {
+
+    appFrame(
+        "📱",
+        "Cellular",
+        [
+            "▶ Signal: 78%",
+            "   Operator: FLIP",
+            "   Network: LTE",
+            "   Band: B12",
+            "   Cell ID: 1842",
+            "   Tower Info"
+        ]
+    );
+}
+
+
+/* =========================================================
+   SATELLITE
+   ========================================================= */
+
+function renderSatellite() {
+
+    appFrame(
+        "🛰️",
+        "Satellite",
+        [
+            "▶ Search Satellites",
+            "   GPS: Searching...",
+            "   SAT-01   42°",
+            "   SAT-02   67°",
+            "   SAT-03   81°",
+            "   Signal Map"
+        ]
+    );
+}
+
+
+/* =========================================================
+   AI
+   ========================================================= */
+
+function renderAI() {
+
+    appFrame(
+        "🤖",
+        "AI",
+        [
+            "▶ Ask AI",
+            "   System Status",
+            "   Analyze Signal",
+            "   Explain Device",
+            "   Generate Code",
+            "   About AI"
+        ]
+    );
+}
+
+
+/* =========================================================
+   TERMINAL
+   ========================================================= */
+
+function renderTerminal() {
+
+    screen.innerHTML = `
+
+        <div class="status">
+
+            <span>💻 TERMINAL</span>
+
+            <span>87%</span>
+
+        </div>
+
+
+        <div class="title">
+            Console
+        </div>
+
+
+        <div
+            class="terminal"
+            id="terminalOutput"
+        >
+
+            ${
+                terminalHistory.join("<br>")
+            }
+
+            <br>
+
+            <span>
+                $
+            </span>
+
+            <input
+                id="terminalInput"
+                class="terminal-input"
+                autocomplete="off"
+                autofocus
+            >
+
+        </div>
+
+
+        <div class="info">
+            Type commands &nbsp; ◀ Back
+        </div>
+
+    `;
+
+
+    const input =
+        document.getElementById(
+            "terminalInput"
+        );
+
+
+    input.focus();
+
+
+    input.addEventListener(
+        "keydown",
+        function(event) {
+
+            if (
+                event.key === "Enter"
+            ) {
+
+                runCommand(
+                    input.value
+                );
+
+            }
+
+        }
+    );
+}
+
+
+/* =========================================================
+   TERMINAL COMMANDS
+   ========================================================= */
+
+function runCommand(command) {
+
+    const cmd =
+        command.trim().toLowerCase();
+
+
+    if (!cmd) {
+        return;
+    }
+
+
+    terminalHistory.push(
+        "$ " + command
+    );
+
+
+    switch (cmd) {
+
+        case "help":
+
+            terminalHistory.push(
+                "help  status  scan  clear  reboot  about"
+            );
+
+            break;
+
+
+        case "status":
+
+            terminalHistory.push(
+                "FLIPPER ONE ONLINE | BAT 87%"
+            );
+
+            break;
+
+
+        case "scan":
+
+            terminalHistory.push(
+                "Scanning...",
+                "Found 6 devices."
+            );
+
+            break;
+
+
+        case "about":
+
+            terminalHistory.push(
+                "Flipper One Simulator",
+                "Virtual hardware environment."
+            );
+
+            break;
+
+
+        case "reboot":
+
+            terminalHistory.push(
+                "Rebooting...",
+                "System ready."
+            );
+
+            break;
+
+
+        case "clear":
+
+            terminalHistory = [];
+
+            break;
+
+
+        default:
+
+            terminalHistory.push(
+                "Command not found: " + cmd
+            );
+
+    }
+
+
+    renderTerminal();
+}
+
+
+/* =========================================================
+   TOOLS
+   ========================================================= */
+
+function renderTools() {
+
+    appFrame(
+        "🔧",
+        "Tools",
+        [
+            "▶ Calculator",
+            "   Stopwatch",
+            "   Timer",
+            "   Random Number",
+            "   Device Test",
+            "   System Info"
+        ]
+    );
+}
+
+
+/* =========================================================
+   FILES
+   ========================================================= */
+
+function renderFiles() {
+
+    appFrame(
+        "📂",
+        "Files",
+        [
+            "▶ /",
+            "   /apps",
+            "   /data",
+            "   /logs",
+            "   /config",
+            "   /system"
+        ]
+    );
+}
+
+
+/* =========================================================
+   SETTINGS
+   ========================================================= */
+
+function renderSettings() {
+
+    appFrame(
+        "⚙️",
+        "Settings",
+        [
+            "▶ Brightness: 80%",
+            "   Sound: ON",
+            "   Vibration: ON",
+            "   Theme: Orange",
+            "   Bluetooth: OFF",
+            "   About Device"
+        ]
+    );
+}
+
+
+/* =========================================================
+   APPS
+   ========================================================= */
+
+function renderApps() {
+
+    appFrame(
+        "🧩",
+        "Apps",
+        [
+            "▶ Installed: 12",
+            "   Updates",
+            "   App Manager",
+            "   Storage",
+            "   Permissions",
+            "   Developer Mode"
+        ]
+    );
+}
+
+
+/* =========================================================
+   MODULES
+   ========================================================= */
+
+function renderModules() {
+
+    appFrame(
+        "🔌",
+        "Modules",
+        [
+            "▶ GPIO Module",
+            "   Radio Module",
+            "   Sensor Module",
+            "   Display Module",
+            "   USB Module",
+            "   Module Info"
+        ]
+    );
+}
+
+
+/* =========================================================
+   APP SELECT ACTION
+   ========================================================= */
+
+function handleAppSelect() {
+
+    if (page === "Radio / SDR") {
+
+        radioAction();
+
+        return;
+    }
+
+
+    if (page === "Wi-Fi") {
+
+        wifiAction();
+
+        return;
+    }
+
+
+    /*
+       Generic fake action
+    */
+
+    const items =
+        document.querySelectorAll(
+            ".app-line"
+        );
+
+
+    if (
+        items[appSelected]
+    ) {
+
+        const original =
+            items[appSelected]
+                .textContent;
+
+
+        items[appSelected]
+            .textContent =
+            "▶ Running...";
+
+
+        setTimeout(() => {
+
+            items[appSelected]
+                .textContent =
+                original
+                .replace("▶ ", "");
+
+        }, 900);
+
+    }
 }
 
 
@@ -1038,6 +1739,7 @@ function back() {
         renderHome();
 
     }
+
 }
 
 
@@ -1066,6 +1768,18 @@ document.addEventListener(
 
             case "ArrowUp":
 
+                /*
+                   Don't steal terminal input arrows
+                */
+
+                if (
+                    document.activeElement &&
+                    document.activeElement.id ===
+                    "terminalInput"
+                ) {
+                    return;
+                }
+
                 event.preventDefault();
 
                 move(-1);
@@ -1074,6 +1788,14 @@ document.addEventListener(
 
 
             case "ArrowDown":
+
+                if (
+                    document.activeElement &&
+                    document.activeElement.id ===
+                    "terminalInput"
+                ) {
+                    return;
+                }
 
                 event.preventDefault();
 
@@ -1085,6 +1807,14 @@ document.addEventListener(
             case "ArrowRight":
 
             case "Enter":
+
+                if (
+                    document.activeElement &&
+                    document.activeElement.id ===
+                    "terminalInput"
+                ) {
+                    return;
+                }
 
                 event.preventDefault();
 
@@ -1098,6 +1828,14 @@ document.addEventListener(
             case "Escape":
 
             case "Backspace":
+
+                if (
+                    document.activeElement &&
+                    document.activeElement.id ===
+                    "terminalInput"
+                ) {
+                    return;
+                }
 
                 event.preventDefault();
 
