@@ -2,6 +2,858 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Flipper One Simulator</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+
+    background: #111;
+
+    font-family: monospace;
+}
+
+
+/* =========================================================
+   DEVICE
+   ========================================================= */
+
+#app {
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.device {
+    position: relative;
+
+    width: min(100vw, 1024px);
+
+    /*
+       Keep the same proportions as
+       flipperone-shell-overlay.png
+    */
+    aspect-ratio: 1024 / 448;
+}
+
+
+/* =========================================================
+   FLIPPER ONE SHELL
+   ========================================================= */
+
+.device-image {
+    position: absolute;
+
+    left: 0;
+    top: 0;
+
+    width: 100%;
+    height: 100%;
+
+    object-fit: contain;
+
+    z-index: 1;
+
+    pointer-events: none;
+}
+
+
+/* =========================================================
+   LCD SCREEN
+   ========================================================= */
+
+.screen {
+
+    position: absolute;
+
+    /*
+       LCD position
+
+       Smaller than previous version and moved
+       into the physical display bezel.
+    */
+
+    left: 34.0%;
+    top: 25.8%;
+
+    width: 33.7%;
+    height: 42.0%;
+
+    z-index: 2;
+
+    /*
+       ORANGE LCD
+    */
+
+    background: #f47b35;
+
+    color: #241205;
+
+    padding: 9px;
+
+    overflow: hidden;
+
+    border-radius: 2px;
+
+    font-family: monospace;
+
+    /*
+       Slight LCD depth
+    */
+
+    box-shadow:
+        inset 0 0 0 2px rgba(0,0,0,0.20),
+        inset 0 0 14px rgba(100,30,0,0.18);
+
+    image-rendering: pixelated;
+}
+
+
+/* =========================================================
+   STATUS BAR
+   ========================================================= */
+
+.status {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    border-bottom:
+        2px solid #6b2b0d;
+
+    padding-bottom: 5px;
+
+    font-size: 11px;
+
+    font-weight: bold;
+}
+
+
+/* =========================================================
+   SCREEN TITLE
+   ========================================================= */
+
+.title {
+
+    text-align: center;
+
+    font-size: 16px;
+
+    font-weight: bold;
+
+    margin: 8px 0;
+}
+
+
+/* =========================================================
+   MENU
+   ========================================================= */
+
+.menu {
+
+    list-style: none;
+
+    padding: 0;
+
+    margin: 0;
+}
+
+
+.menu li {
+
+    padding: 5px 7px;
+
+    margin: 2px 0;
+
+    font-size: 13px;
+
+    border-radius: 1px;
+}
+
+
+/*
+   Selected item
+*/
+
+.menu li.selected {
+
+    background: #241205;
+
+    color: #f47b35;
+}
+
+
+/* =========================================================
+   INFO TEXT
+   ========================================================= */
+
+.info {
+
+    margin-top: 8px;
+
+    font-size: 10px;
+
+    line-height: 1.4;
+}
+
+
+/* =========================================================
+   INVISIBLE BUTTON AREAS
+   =========================================================
+
+   These sit on top of the physical buttons
+   in the image.
+   ========================================================= */
+
+.control {
+
+    position: absolute;
+
+    z-index: 5;
+
+    border: none;
+
+    background: transparent;
+
+    padding: 0;
+
+    margin: 0;
+
+    cursor: pointer;
+
+    /*
+       Prevent blue highlight on mobile
+    */
+
+    -webkit-tap-highlight-color: transparent;
+}
+
+
+/* =========================================================
+   UP
+   ========================================================= */
+
+.up {
+
+    left: 72.5%;
+    top: 29%;
+
+    width: 10%;
+    height: 11%;
+}
+
+
+/* =========================================================
+   DOWN
+   ========================================================= */
+
+.down {
+
+    left: 72.5%;
+    top: 47%;
+
+    width: 10%;
+    height: 11%;
+}
+
+
+/* =========================================================
+   LEFT
+   ========================================================= */
+
+.left {
+
+    left: 70%;
+    top: 37%;
+
+    width: 9%;
+    height: 13%;
+}
+
+
+/* =========================================================
+   RIGHT
+   ========================================================= */
+
+.right {
+
+    left: 79%;
+    top: 37%;
+
+    width: 9%;
+    height: 13%;
+}
+
+
+/* =========================================================
+   CENTER / OK
+   ========================================================= */
+
+.ok {
+
+    left: 76%;
+    top: 35%;
+
+    width: 7%;
+    height: 13%;
+
+    border-radius: 50%;
+}
+
+
+/* =========================================================
+   BACK BUTTON
+   ========================================================= */
+
+.back {
+
+    left: 84%;
+    top: 59%;
+
+    width: 8%;
+    height: 12%;
+
+    border-radius: 50%;
+}
+
+
+/* =========================================================
+   BOTTOM LEFT BUTTON
+   ========================================================= */
+
+.bottom-left {
+
+    left: 34%;
+    top: 73%;
+
+    width: 7%;
+    height: 8%;
+}
+
+
+/* =========================================================
+   BOTTOM RIGHT BUTTON
+   ========================================================= */
+
+.bottom-right {
+
+    left: 61%;
+    top: 73%;
+
+    width: 7%;
+    height: 8%;
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 600px) {
+
+    .screen {
+
+        padding: 5px;
+    }
+
+    .status {
+
+        font-size: 7px;
+    }
+
+    .title {
+
+        font-size: 10px;
+
+        margin: 3px 0;
+    }
+
+    .menu li {
+
+        font-size: 8px;
+
+        padding: 3px 5px;
+    }
+
+    .info {
+
+        font-size: 6px;
+    }
+}
+
+</style>
+</head>
+
+
+<body>
+
+
+<div id="app">
+
+    <div class="device">
+
+
+        <!-- =================================================
+             YOUR EXISTING GITHUB IMAGE
+             ================================================= -->
+
+        <img
+            class="device-image"
+            src="./flipperone-shell-overlay.png"
+            alt="Flipper One"
+        >
+
+
+        <!-- =================================================
+             SIMULATED LCD
+             ================================================= -->
+
+        <div
+            id="screen"
+            class="screen">
+        </div>
+
+
+        <!-- =================================================
+             INVISIBLE PHYSICAL BUTTON CONTROLS
+             ================================================= -->
+
+
+        <!-- UP -->
+
+        <button
+            class="control up"
+            onclick="move(-1)"
+            aria-label="Up">
+        </button>
+
+
+        <!-- DOWN -->
+
+        <button
+            class="control down"
+            onclick="move(1)"
+            aria-label="Down">
+        </button>
+
+
+        <!-- LEFT -->
+
+        <button
+            class="control left"
+            onclick="back()"
+            aria-label="Back">
+        </button>
+
+
+        <!-- RIGHT -->
+
+        <button
+            class="control right"
+            onclick="select()"
+            aria-label="Select">
+        </button>
+
+
+        <!-- OK -->
+
+        <button
+            class="control ok"
+            onclick="select()"
+            aria-label="OK">
+        </button>
+
+
+        <!-- BACK -->
+
+        <button
+            class="control back"
+            onclick="back()"
+            aria-label="Back">
+        </button>
+
+
+        <!-- BOTTOM LEFT -->
+
+        <button
+            class="control bottom-left"
+            onclick="back()"
+            aria-label="Back">
+        </button>
+
+
+        <!-- BOTTOM RIGHT -->
+
+        <button
+            class="control bottom-right"
+            onclick="home()"
+            aria-label="Home">
+        </button>
+
+
+    </div>
+
+</div>
+
+
+
+<script>
+
+/* =========================================================
+   APPLICATIONS
+   ========================================================= */
+
+const apps = [
+
+    {
+        icon: "◈",
+        name: "Sub-GHz"
+    },
+
+    {
+        icon: "▣",
+        name: "NFC"
+    },
+
+    {
+        icon: "●",
+        name: "Infrared"
+    },
+
+    {
+        icon: "◇",
+        name: "GPIO"
+    },
+
+    {
+        icon: "◆",
+        name: "Games"
+    },
+
+    {
+        icon: "⚙",
+        name: "Settings"
+    }
+
+];
+
+
+/* =========================================================
+   STATE
+   ========================================================= */
+
+let selected = 0;
+
+let page = "home";
+
+
+const screen =
+    document.getElementById("screen");
+
+
+/* =========================================================
+   HOME SCREEN
+   ========================================================= */
+
+function renderHome() {
+
+    page = "home";
+
+
+    screen.innerHTML = `
+
+        <div class="status">
+
+            <span>
+                FLIPPER ONE
+            </span>
+
+            <span>
+                BAT 87%
+            </span>
+
+        </div>
+
+
+        <div class="title">
+            Applications
+        </div>
+
+
+        <ul class="menu">
+
+            ${
+                apps.map((app, index) => `
+
+                    <li
+                        class="${
+                            index === selected
+                                ? "selected"
+                                : ""
+                        }"
+                    >
+
+                        ${app.icon}
+                        ${app.name}
+
+                    </li>
+
+                `).join("")
+            }
+
+        </ul>
+
+
+        <div class="info">
+
+            ▲ ▼ Navigate<br>
+
+            ▶ Select
+
+        </div>
+
+    `;
+}
+
+
+/* =========================================================
+   MOVE THROUGH MENU
+   ========================================================= */
+
+function move(direction) {
+
+    if (page !== "home") {
+        return;
+    }
+
+
+    selected += direction;
+
+
+    if (selected < 0) {
+
+        selected =
+            apps.length - 1;
+    }
+
+
+    if (selected >= apps.length) {
+
+        selected = 0;
+    }
+
+
+    renderHome();
+}
+
+
+/* =========================================================
+   SELECT APPLICATION
+   ========================================================= */
+
+function select() {
+
+    if (page !== "home") {
+        return;
+    }
+
+
+    const app =
+        apps[selected];
+
+
+    page =
+        app.name;
+
+
+    screen.innerHTML = `
+
+        <div class="status">
+
+            <span>
+                ${app.name}
+            </span>
+
+            <span>
+                BAT 87%
+            </span>
+
+        </div>
+
+
+        <div class="title">
+
+            ${app.icon}
+            ${app.name}
+
+        </div>
+
+
+        <ul class="menu">
+
+            <li class="selected">
+
+                ▶ Start
+
+            </li>
+
+
+            <li>
+
+                Saved Data
+
+            </li>
+
+
+            <li>
+
+                Settings
+
+            </li>
+
+        </ul>
+
+
+        <div class="info">
+
+            Simulator mode.<br>
+
+            Hardware functions are virtual.
+
+        </div>
+
+    `;
+}
+
+
+/* =========================================================
+   BACK
+   ========================================================= */
+
+function back() {
+
+    if (page !== "home") {
+
+        renderHome();
+
+    }
+
+}
+
+
+/* =========================================================
+   HOME BUTTON
+   ========================================================= */
+
+function home() {
+
+    selected = 0;
+
+    renderHome();
+
+}
+
+
+/* =========================================================
+   KEYBOARD CONTROLS
+   ========================================================= */
+
+document.addEventListener(
+    "keydown",
+    function(event) {
+
+
+        /* UP */
+
+        if (event.key === "ArrowUp") {
+
+            event.preventDefault();
+
+            move(-1);
+        }
+
+
+        /* DOWN */
+
+        if (event.key === "ArrowDown") {
+
+            event.preventDefault();
+
+            move(1);
+        }
+
+
+        /* SELECT */
+
+        if (
+            event.key === "ArrowRight" ||
+            event.key === "Enter"
+        ) {
+
+            event.preventDefault();
+
+            select();
+        }
+
+
+        /* BACK */
+
+        if (
+            event.key === "ArrowLeft" ||
+            event.key === "Escape" ||
+            event.key === "Backspace"
+        ) {
+
+            event.preventDefault();
+
+            back();
+        }
+
+
+        /* HOME */
+
+        if (event.key === "Home") {
+
+            event.preventDefault();
+
+            home();
+        }
+
+    }
+);
+
+
+/* =========================================================
+   START SIMULATOR
+   ========================================================= */
+
+renderHome();
+
+</script>
+
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Flipper One Simulator</title>
 
