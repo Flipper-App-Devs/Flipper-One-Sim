@@ -75,13 +75,16 @@ body {
 .screen {
     position: absolute;
 
-    /* keep top-right fixed */
-    left: 33.5%;
-    top: 23.7%;
+    /* CENTER OF THE PHYSICAL SCREEN HOLE */
+    left: 50.25%;
+    top: 45.1%;
 
-    /* smaller from bottom-left */
-    width: calc(33.5% - 3mm);
-    height: calc(42.8% - 3mm);
+    /* LCD size */
+    width: 33.5%;
+    height: 42.8%;
+
+    /* Center the LCD around the hole */
+    transform: translate(-50%, -50%);
 
     z-index: 10;
 
@@ -102,6 +105,7 @@ body {
         inset 0 0 0 2px rgba(55, 20, 0, 0.25),
         inset 0 0 14px rgba(90, 30, 0, 0.18);
 }
+
 
 /* =========================================================
    TOP BAR
