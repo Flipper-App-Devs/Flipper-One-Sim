@@ -75,11 +75,15 @@ body {
 .screen {
     position: absolute;
 
-    left: calc(33.5% + 3mm);
+    /* 2mm left from the current position */
+    left: calc(33.5% + 1mm);
+
+    /* keep the same vertical position */
     top: 23.7%;
 
-    width: calc(34.2% - 2mm);
-    height: calc(43.5% - 2mm);
+    /* slightly smaller */
+    width: calc(33.5% - 2mm);
+    height: calc(42.8% - 2mm);
 
     z-index: 10;
 
@@ -100,7 +104,6 @@ body {
         inset 0 0 0 2px rgba(55, 20, 0, 0.25),
         inset 0 0 14px rgba(90, 30, 0, 0.18);
 }
-
 /* =========================================================
    TOP BAR
    ========================================================= */
