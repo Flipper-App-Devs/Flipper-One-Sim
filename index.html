@@ -3,11 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Flipper One Simulator</title>
 
 <style>
-
 * {
     box-sizing: border-box;
 }
@@ -18,12 +16,9 @@ body {
     width: 100%;
     height: 100%;
     overflow: hidden;
-
     background: #111;
-
     font-family: monospace;
 }
-
 
 /* =========================================================
    DEVICE
@@ -44,47 +39,30 @@ body {
     width: min(100vw, 1024px);
 
     /*
-       Keep the same proportions as
-       flipperone-shell-overlay.png
+       Matches your overlay image
     */
     aspect-ratio: 1024 / 448;
+
+    /*
+       USE THE IMAGE ALREADY IN YOUR GITHUB REPO
+    */
+    background-image: url("./flipperone-shell-overlay.png");
+
+    background-size: 100% 100%;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 
 /* =========================================================
-   FLIPPER ONE SHELL
-   ========================================================= */
-
-.device-image {
-    position: absolute;
-
-    left: 0;
-    top: 0;
-
-    width: 100%;
-    height: 100%;
-
-    object-fit: contain;
-
-    z-index: 1;
-
-    pointer-events: none;
-}
-
-
-/* =========================================================
-   LCD SCREEN
+   ORANGE LCD
    ========================================================= */
 
 .screen {
-
     position: absolute;
 
     /*
        LCD position
-
-       Smaller than previous version and moved
-       into the physical display bezel.
     */
 
     left: 34.0%;
@@ -93,33 +71,46 @@ body {
     width: 33.7%;
     height: 42.0%;
 
-    z-index: 2;
-
     /*
-       ORANGE LCD
+       IMPORTANT:
+       Higher than the shell background
     */
 
-    background: #f47b35;
+    z-index: 20;
 
-    color: #241205;
+    /*
+       ORANGE SCREEN
+    */
+
+    background-color: #f28c28 !important;
+
+    color: #321400;
 
     padding: 9px;
 
     overflow: hidden;
 
+    border: none;
+
     border-radius: 2px;
 
     font-family: monospace;
 
+    opacity: 1 !important;
+
     /*
-       Slight LCD depth
+       LCD appearance
     */
 
     box-shadow:
-        inset 0 0 0 2px rgba(0,0,0,0.20),
-        inset 0 0 14px rgba(100,30,0,0.18);
+        inset 0 0 0 2px rgba(50, 15, 0, 0.28),
+        inset 0 0 15px rgba(90, 30, 0, 0.20);
 
-    image-rendering: pixelated;
+    /*
+       Prevent weird blending
+    */
+
+    mix-blend-mode: normal;
 }
 
 
@@ -128,15 +119,12 @@ body {
    ========================================================= */
 
 .status {
-
     display: flex;
 
     justify-content: space-between;
-
     align-items: center;
 
-    border-bottom:
-        2px solid #6b2b0d;
+    border-bottom: 2px solid #713000;
 
     padding-bottom: 5px;
 
@@ -147,11 +135,10 @@ body {
 
 
 /* =========================================================
-   SCREEN TITLE
+   TITLE
    ========================================================= */
 
 .title {
-
     text-align: center;
 
     font-size: 16px;
@@ -167,17 +154,13 @@ body {
    ========================================================= */
 
 .menu {
-
     list-style: none;
 
     padding: 0;
-
     margin: 0;
 }
 
-
 .menu li {
-
     padding: 5px 7px;
 
     margin: 2px 0;
@@ -188,24 +171,20 @@ body {
 }
 
 
-/*
-   Selected item
-*/
+/* Selected menu item */
 
 .menu li.selected {
+    background: #321400;
 
-    background: #241205;
-
-    color: #f47b35;
+    color: #f28c28;
 }
 
 
 /* =========================================================
-   INFO TEXT
+   INFO
    ========================================================= */
 
 .info {
-
     margin-top: 8px;
 
     font-size: 10px;
@@ -215,32 +194,22 @@ body {
 
 
 /* =========================================================
-   INVISIBLE BUTTON AREAS
-   =========================================================
-
-   These sit on top of the physical buttons
-   in the image.
+   INVISIBLE BUTTONS
    ========================================================= */
 
 .control {
-
     position: absolute;
 
-    z-index: 5;
+    z-index: 50;
 
     border: none;
 
     background: transparent;
 
     padding: 0;
-
     margin: 0;
 
     cursor: pointer;
-
-    /*
-       Prevent blue highlight on mobile
-    */
 
     -webkit-tap-highlight-color: transparent;
 }
@@ -251,7 +220,6 @@ body {
    ========================================================= */
 
 .up {
-
     left: 72.5%;
     top: 29%;
 
@@ -265,7 +233,6 @@ body {
    ========================================================= */
 
 .down {
-
     left: 72.5%;
     top: 47%;
 
@@ -279,7 +246,6 @@ body {
    ========================================================= */
 
 .left {
-
     left: 70%;
     top: 37%;
 
@@ -293,7 +259,6 @@ body {
    ========================================================= */
 
 .right {
-
     left: 79%;
     top: 37%;
 
@@ -303,11 +268,10 @@ body {
 
 
 /* =========================================================
-   CENTER / OK
+   OK
    ========================================================= */
 
 .ok {
-
     left: 76%;
     top: 35%;
 
@@ -319,11 +283,10 @@ body {
 
 
 /* =========================================================
-   BACK BUTTON
+   BACK
    ========================================================= */
 
 .back {
-
     left: 84%;
     top: 59%;
 
@@ -335,11 +298,10 @@ body {
 
 
 /* =========================================================
-   BOTTOM LEFT BUTTON
+   BOTTOM LEFT
    ========================================================= */
 
 .bottom-left {
-
     left: 34%;
     top: 73%;
 
@@ -349,11 +311,10 @@ body {
 
 
 /* =========================================================
-   BOTTOM RIGHT BUTTON
+   BOTTOM RIGHT
    ========================================================= */
 
 .bottom-right {
-
     left: 61%;
     top: 73%;
 
@@ -369,31 +330,24 @@ body {
 @media (max-width: 600px) {
 
     .screen {
-
         padding: 5px;
     }
 
     .status {
-
         font-size: 7px;
     }
 
     .title {
-
         font-size: 10px;
-
         margin: 3px 0;
     }
 
     .menu li {
-
         font-size: 8px;
-
         padding: 3px 5px;
     }
 
     .info {
-
         font-size: 6px;
     }
 }
@@ -404,22 +358,9 @@ body {
 
 <body>
 
-
 <div id="app">
 
     <div class="device">
-
-
-        <!-- =================================================
-             YOUR EXISTING GITHUB IMAGE
-             ================================================= -->
-
-        <img
-            class="device-image"
-            src="./flipperone-shell-overlay.png"
-            alt="Flipper One"
-        >
-
 
         <!-- =================================================
              SIMULATED LCD
@@ -432,11 +373,9 @@ body {
 
 
         <!-- =================================================
-             INVISIBLE PHYSICAL BUTTON CONTROLS
+             INVISIBLE BUTTON HIT AREAS
              ================================================= -->
 
-
-        <!-- UP -->
 
         <button
             class="control up"
@@ -445,16 +384,12 @@ body {
         </button>
 
 
-        <!-- DOWN -->
-
         <button
             class="control down"
             onclick="move(1)"
             aria-label="Down">
         </button>
 
-
-        <!-- LEFT -->
 
         <button
             class="control left"
@@ -463,16 +398,12 @@ body {
         </button>
 
 
-        <!-- RIGHT -->
-
         <button
             class="control right"
             onclick="select()"
             aria-label="Select">
         </button>
 
-
-        <!-- OK -->
 
         <button
             class="control ok"
@@ -481,16 +412,12 @@ body {
         </button>
 
 
-        <!-- BACK -->
-
         <button
             class="control back"
             onclick="back()"
             aria-label="Back">
         </button>
 
-
-        <!-- BOTTOM LEFT -->
 
         <button
             class="control bottom-left"
@@ -499,25 +426,21 @@ body {
         </button>
 
 
-        <!-- BOTTOM RIGHT -->
-
         <button
             class="control bottom-right"
             onclick="home()"
             aria-label="Home">
         </button>
 
-
     </div>
 
 </div>
 
 
-
 <script>
 
 /* =========================================================
-   APPLICATIONS
+   APPS
    ========================================================= */
 
 const apps = [
@@ -624,7 +547,6 @@ function renderHome() {
         <div class="info">
 
             ▲ ▼ Navigate<br>
-
             ▶ Select
 
         </div>
@@ -634,7 +556,7 @@ function renderHome() {
 
 
 /* =========================================================
-   MOVE THROUGH MENU
+   NAVIGATION
    ========================================================= */
 
 function move(direction) {
@@ -665,7 +587,7 @@ function move(direction) {
 
 
 /* =========================================================
-   SELECT APPLICATION
+   SELECT
    ========================================================= */
 
 function select() {
@@ -709,23 +631,15 @@ function select() {
         <ul class="menu">
 
             <li class="selected">
-
                 ▶ Start
-
             </li>
 
-
             <li>
-
                 Saved Data
-
             </li>
 
-
             <li>
-
                 Settings
-
             </li>
 
         </ul>
@@ -754,12 +668,11 @@ function back() {
         renderHome();
 
     }
-
 }
 
 
 /* =========================================================
-   HOME BUTTON
+   HOME
    ========================================================= */
 
 function home() {
@@ -772,15 +685,12 @@ function home() {
 
 
 /* =========================================================
-   KEYBOARD CONTROLS
+   KEYBOARD
    ========================================================= */
 
 document.addEventListener(
     "keydown",
     function(event) {
-
-
-        /* UP */
 
         if (event.key === "ArrowUp") {
 
@@ -790,8 +700,6 @@ document.addEventListener(
         }
 
 
-        /* DOWN */
-
         if (event.key === "ArrowDown") {
 
             event.preventDefault();
@@ -799,8 +707,6 @@ document.addEventListener(
             move(1);
         }
 
-
-        /* SELECT */
 
         if (
             event.key === "ArrowRight" ||
@@ -812,8 +718,6 @@ document.addEventListener(
             select();
         }
 
-
-        /* BACK */
 
         if (
             event.key === "ArrowLeft" ||
@@ -827,8 +731,6 @@ document.addEventListener(
         }
 
 
-        /* HOME */
-
         if (event.key === "Home") {
 
             event.preventDefault();
@@ -841,524 +743,8 @@ document.addEventListener(
 
 
 /* =========================================================
-   START SIMULATOR
+   START
    ========================================================= */
-
-renderHome();
-
-</script>
-
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Flipper One Simulator</title>
-
-<style>
-* {
-  box-sizing: border-box;
-}
-
-html,
-body {
-  margin: 0;
-  width: 100%;
-  height: 100%;
-  background: #111;
-  overflow: hidden;
-  font-family: monospace;
-}
-
-#app {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.device {
-  position: relative;
-
-  width: min(100vw, 1024px);
-  aspect-ratio: 1024 / 448;
-}
-
-/* YOUR GITHUB OVERLAY IMAGE */
-.device-image {
-  position: absolute;
-  inset: 0;
-
-  width: 100%;
-  height: 100%;
-
-  object-fit: contain;
-
-  z-index: 1;
-}
-
-/*
-   SCREEN IN THE ACTUAL DEVICE
-
-   Your PNG is 1024 x 448.
-
-   LCD opening:
-   x ≈ 335
-   y ≈ 108
-   width ≈ 354
-   height ≈ 202
-*/
-
-.screen {
-  position: absolute;
-
-  left: 32.7%;
-  top: 24.1%;
-
-  width: 35.1%;
-  height: 45.0%;
-
-  z-index: 2;
-
-  background: #9bbc0f;
-  color: #102000;
-
-  padding: 10px;
-
-  overflow: hidden;
-
-  font-family: monospace;
-
-  border-radius: 2px;
-
-  box-shadow:
-    inset 0 0 0 2px rgba(0,0,0,.25),
-    inset 0 0 15px rgba(0,0,0,.15);
-}
-
-/* SCREEN */
-
-.status {
-  display: flex;
-  justify-content: space-between;
-
-  border-bottom: 2px solid #315000;
-
-  padding-bottom: 5px;
-
-  font-size: 11px;
-}
-
-.title {
-  text-align: center;
-
-  font-weight: bold;
-
-  font-size: 16px;
-
-  margin: 8px 0;
-}
-
-.menu {
-  list-style: none;
-
-  margin: 0;
-  padding: 0;
-}
-
-.menu li {
-  padding: 5px 7px;
-
-  margin: 2px 0;
-
-  font-size: 13px;
-}
-
-.menu li.selected {
-  background: #102000;
-  color: #9bbc0f;
-}
-
-.info {
-  margin-top: 8px;
-
-  font-size: 10px;
-
-  line-height: 1.4;
-}
-
-/* INVISIBLE BUTTON HIT AREAS */
-
-.control {
-  position: absolute;
-
-  z-index: 5;
-
-  border: 0;
-
-  background: transparent;
-
-  cursor: pointer;
-
-  padding: 0;
-}
-
-/* D-PAD */
-
-.up {
-  left: 72.5%;
-  top: 29%;
-  width: 10%;
-  height: 11%;
-}
-
-.down {
-  left: 72.5%;
-  top: 47%;
-  width: 10%;
-  height: 11%;
-}
-
-.left {
-  left: 70%;
-  top: 37%;
-  width: 9%;
-  height: 13%;
-}
-
-.right {
-  left: 79%;
-  top: 37%;
-  width: 9%;
-  height: 13%;
-}
-
-.ok {
-  left: 76%;
-  top: 35%;
-  width: 7%;
-  height: 13%;
-
-  border-radius: 50%;
-}
-
-/* ORANGE BACK BUTTON */
-
-.back {
-  left: 84%;
-  top: 59%;
-  width: 8%;
-  height: 12%;
-
-  border-radius: 50%;
-}
-
-/* BOTTOM PHYSICAL BUTTONS */
-
-.bottom-left {
-  left: 34%;
-  top: 73%;
-  width: 7%;
-  height: 8%;
-}
-
-.bottom-right {
-  left: 61%;
-  top: 73%;
-  width: 7%;
-  height: 8%;
-}
-
-/* MOBILE */
-
-@media (max-width: 600px) {
-
-  .screen {
-    padding: 5px;
-  }
-
-  .status {
-    font-size: 7px;
-  }
-
-  .title {
-    font-size: 10px;
-    margin: 3px;
-  }
-
-  .menu li {
-    font-size: 8px;
-    padding: 3px;
-  }
-
-  .info {
-    font-size: 6px;
-  }
-}
-</style>
-</head>
-
-<body>
-
-<div id="app">
-
-  <div class="device">
-
-    <!--
-      THIS IS THE IMAGE ALREADY IN YOUR GITHUB REPO.
-      Do NOT change this filename.
-    -->
-    <img
-      class="device-image"
-      src="./flipperone-shell-overlay.png"
-      alt="Flipper One"
-    >
-
-    <!-- SIMULATED LCD -->
-    <div id="screen" class="screen"></div>
-
-    <!-- PHYSICAL BUTTON HIT AREAS -->
-
-    <button
-      class="control up"
-      onclick="move(-1)">
-    </button>
-
-    <button
-      class="control down"
-      onclick="move(1)">
-    </button>
-
-    <button
-      class="control left"
-      onclick="back()">
-    </button>
-
-    <button
-      class="control right"
-      onclick="select()">
-    </button>
-
-    <button
-      class="control ok"
-      onclick="select()">
-    </button>
-
-    <button
-      class="control back"
-      onclick="back()">
-    </button>
-
-    <button
-      class="control bottom-left"
-      onclick="back()">
-    </button>
-
-    <button
-      class="control bottom-right"
-      onclick="home()">
-    </button>
-
-  </div>
-
-</div>
-
-<script>
-
-const apps = [
-  {
-    icon: "◈",
-    name: "Sub-GHz"
-  },
-  {
-    icon: "▣",
-    name: "NFC"
-  },
-  {
-    icon: "●",
-    name: "Infrared"
-  },
-  {
-    icon: "◇",
-    name: "GPIO"
-  },
-  {
-    icon: "◆",
-    name: "Games"
-  },
-  {
-    icon: "⚙",
-    name: "Settings"
-  }
-];
-
-let selected = 0;
-let page = "home";
-
-const screen =
-  document.getElementById("screen");
-
-
-/* HOME */
-
-function renderHome() {
-
-  page = "home";
-
-  screen.innerHTML = `
-
-    <div class="status">
-      <span>FLIPPER ONE</span>
-      <span>BAT 87%</span>
-    </div>
-
-    <div class="title">
-      Applications
-    </div>
-
-    <ul class="menu">
-
-      ${apps.map((app, i) => `
-
-        <li class="${i === selected ? "selected" : ""}">
-          ${app.icon} ${app.name}
-        </li>
-
-      `).join("")}
-
-    </ul>
-
-    <div class="info">
-      ▲ ▼ Navigate<br>
-      ▶ Select
-    </div>
-
-  `;
-}
-
-
-/* UP / DOWN */
-
-function move(direction) {
-
-  if (page !== "home")
-    return;
-
-  selected += direction;
-
-  if (selected < 0)
-    selected = apps.length - 1;
-
-  if (selected >= apps.length)
-    selected = 0;
-
-  renderHome();
-}
-
-
-/* SELECT */
-
-function select() {
-
-  if (page !== "home")
-    return;
-
-  const app = apps[selected];
-
-  page = app.name;
-
-  screen.innerHTML = `
-
-    <div class="status">
-      <span>${app.name}</span>
-      <span>BAT 87%</span>
-    </div>
-
-    <div class="title">
-      ${app.icon} ${app.name}
-    </div>
-
-    <ul class="menu">
-
-      <li class="selected">
-        ▶ Start
-      </li>
-
-      <li>
-        Saved Data
-      </li>
-
-      <li>
-        Settings
-      </li>
-
-    </ul>
-
-    <div class="info">
-      Simulator mode.<br>
-      Hardware functions are virtual.
-    </div>
-
-  `;
-}
-
-
-/* BACK */
-
-function back() {
-
-  if (page !== "home") {
-    renderHome();
-  }
-
-}
-
-
-/* HOME */
-
-function home() {
-  renderHome();
-}
-
-
-/* KEYBOARD */
-
-document.addEventListener("keydown", function(e) {
-
-  switch (e.key) {
-
-    case "ArrowUp":
-      move(-1);
-      break;
-
-    case "ArrowDown":
-      move(1);
-      break;
-
-    case "ArrowRight":
-    case "Enter":
-      select();
-      break;
-
-    case "ArrowLeft":
-    case "Escape":
-    case "Backspace":
-      back();
-      break;
-
-    case "Home":
-      home();
-      break;
-
-  }
-
-});
-
-
-/* START */
 
 renderHome();
 
