@@ -1,9 +1,3 @@
-Yep. The problem with the scrolling was the custom transform system fighting the menu viewport. This version uses real scrolling instead.
-
-I also shortened the screen by 2mm from the bottom and 2mm from the right, while keeping its top-left position where you had it.
-
-Replace your current code with this:
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,7 +7,6 @@ Replace your current code with this:
 <title>Flipper One Simulator</title>
 
 <style>
-
 * {
     box-sizing: border-box;
 }
@@ -28,11 +21,6 @@ body {
     font-family: monospace;
 }
 
-
-/* =========================================================
-   DEVICE
-   ========================================================= */
-
 #app {
     width: 100%;
     height: 100%;
@@ -42,47 +30,66 @@ body {
     justify-content: center;
 }
 
+
+/* =========================================================
+   DEVICE
+   ========================================================= */
+
 .device {
     position: relative;
 
     width: min(100vw, 1024px);
 
     aspect-ratio: 1024 / 448;
+}
 
-    background-image:
-        url("./flipperone-shell-overlay.png");
 
-    background-size: 100% 100%;
-    background-position: center;
-    background-repeat: no-repeat;
+/* =========================================================
+   FIXED FLIPPER IMAGE
+   ========================================================= */
+
+.device-image {
+    position: absolute;
+
+    left: 0;
+    top: 0;
+
+    width: 100%;
+    height: 100%;
+
+    object-fit: contain;
+
+    z-index: 1;
+
+    pointer-events: none;
 }
 
 
 /* =========================================================
    LCD SCREEN
+
+   ONLY THIS ELEMENT MOVES.
+   THE IMAGE ABOVE NEVER MOVES.
    ========================================================= */
 
 .screen {
     position: absolute;
 
     /*
-       Current position:
-       slightly up + slightly left
+       LCD position
     */
 
     left: 33.3%;
     top: 23.4%;
 
     /*
-       Same general size as before,
-       but 2mm shorter from the bottom
-       and 2mm shorter from the right.
+       Slightly smaller on right and bottom
     */
 
     width: calc(35.4% - 2mm);
     height: calc(45.2% - 2mm);
 
-    z-index: 20;
+    z-index: 10;
 
     background: #f28c28;
 
@@ -90,18 +97,17 @@ body {
 
     padding: 8px;
 
-    overflow: hidden;
-
     border: none;
+
     border-radius: 2px;
+
+    overflow: hidden;
 
     font-family: monospace;
 
     box-shadow:
         inset 0 0 0 2px rgba(55, 20, 0, 0.25),
         inset 0 0 14px rgba(90, 30, 0, 0.18);
-
-    isolation: isolate;
 }
 
 
@@ -114,6 +120,10 @@ body {
 
     align-items: center;
     justify-content: space-between;
+
+    /*
+       Slightly darker than the LCD
+    */
 
     background: #d96f18;
 
@@ -165,22 +175,18 @@ body {
 
     width: 100%;
 
-    /*
-       This is now a REAL scroll area.
-    */
-
     height: 122px;
 
     overflow-y: auto;
     overflow-x: hidden;
 
-    scrollbar-width: none;
+    /*
+       Hide native scrollbar
+    */
 
+    scrollbar-width: none;
     -ms-overflow-style: none;
 }
-
-
-/* Hide Chrome/Safari scrollbar */
 
 .menu-window::-webkit-scrollbar {
     display: none;
@@ -225,8 +231,6 @@ body {
     text-overflow: ellipsis;
 
     border-radius: 2px;
-
-    scroll-margin: 2px;
 }
 
 
@@ -242,10 +246,10 @@ body {
 
 
 /* =========================================================
-   SMALL SCROLL INDICATOR
+   SCROLL INDICATOR
    ========================================================= */
 
-.scroll-indicator {
+.scrollbar {
     position: absolute;
 
     right: 1px;
@@ -254,29 +258,28 @@ body {
     width: 3px;
     height: 100%;
 
-    pointer-events: none;
-
     background: rgba(60, 20, 0, 0.12);
 
     border-radius: 3px;
+
+    pointer-events: none;
 }
 
-.scroll-indicator::after {
-    content: "";
-
+.scroll-thumb {
     position: absolute;
 
     left: 0;
-    top: 0;
 
     width: 3px;
-    height: 28%;
+
+    min-height: 20px;
 
     background: #321400;
 
     border-radius: 3px;
 
-    transition: top 0.15s ease;
+    transition:
+        top 0.12s ease;
 }
 
 
@@ -305,7 +308,7 @@ body {
 
 
 /* =========================================================
-   INVISIBLE BUTTONS
+   INVISIBLE BUTTON HIT AREAS
    ========================================================= */
 
 .control {
@@ -409,7 +412,7 @@ body {
 
 
 /* =========================================================
-   BOTTOM BUTTONS
+   BOTTOM LEFT
    ========================================================= */
 
 .bottom-left {
@@ -419,6 +422,11 @@ body {
     width: 7%;
     height: 8%;
 }
+
+
+/* =========================================================
+   BOTTOM RIGHT
+   ========================================================= */
 
 .bottom-right {
     left: 61%;
@@ -490,9 +498,19 @@ body {
 
     <div class="device">
 
+        <!-- =================================================
+             FIXED OVERLAY IMAGE
+             ================================================= -->
+
+        <img
+            class="device-image"
+            src="./flipperone-shell-overlay.png"
+            alt="Flipper One"
+        >
+
 
         <!-- =================================================
-             SCREEN
+             ORANGE LCD
              ================================================= -->
 
         <div
@@ -502,7 +520,7 @@ body {
 
 
         <!-- =================================================
-             BUTTONS
+             BUTTON HIT AREAS
              ================================================= -->
 
         <button
@@ -683,12 +701,12 @@ function renderHome() {
                     apps.map((app, index) => `
 
                         <li
+                            data-index="${index}"
                             class="${
                                 index === selected
                                     ? "selected"
                                     : ""
                             }"
-                            data-index="${index}"
                         >
 
                             ${app.icon}
@@ -703,8 +721,15 @@ function renderHome() {
 
 
             <div
-                class="scroll-indicator"
-                id="scrollIndicator">
+                class="scrollbar"
+                id="scrollbar"
+            >
+
+                <div
+                    class="scroll-thumb"
+                    id="scrollThumb"
+                ></div>
+
             </div>
 
         </div>
@@ -722,76 +747,90 @@ function renderHome() {
 
 
     /*
-       Wait for browser to create the list,
-       then scroll to selected item.
+       Wait until DOM is rendered.
     */
 
     requestAnimationFrame(() => {
 
         scrollToSelected();
 
-        updateScrollIndicator();
+        updateScrollbar();
 
     });
 }
 
 
 /* =========================================================
-   SCROLL TO SELECTED ITEM
+   SCROLL TO SELECTED
    ========================================================= */
 
 function scrollToSelected() {
 
-    const menu =
-        document.getElementById("menu");
-
-    if (!menu) {
-        return;
-    }
-
+    const windowElement =
+        document.getElementById("menuWindow");
 
     const item =
-        menu.querySelector(
-            `li[data-index="${selected}"]`
+        document.querySelector(
+            `.menu li[data-index="${selected}"]`
         );
 
 
-    if (!item) {
+    if (!windowElement || !item) {
         return;
     }
 
 
     /*
-       Native browser scrolling.
-       This fixes the previous broken scrolling.
+       Real native scrolling.
     */
 
-    item.scrollIntoView({
+    const itemTop =
+        item.offsetTop;
 
-        behavior: "smooth",
+    const itemBottom =
+        itemTop + item.offsetHeight;
 
-        block: "nearest",
+    const viewTop =
+        windowElement.scrollTop;
 
-        inline: "nearest"
+    const viewBottom =
+        viewTop +
+        windowElement.clientHeight;
 
-    });
+
+    if (itemTop < viewTop) {
+
+        windowElement.scrollTop =
+            itemTop;
+
+    }
+    else if (itemBottom > viewBottom) {
+
+        windowElement.scrollTop =
+            itemBottom -
+            windowElement.clientHeight;
+
+    }
+
+
+    updateScrollbar();
 }
 
 
 /* =========================================================
-   SCROLL INDICATOR
+   SCROLLBAR
    ========================================================= */
 
-function updateScrollIndicator() {
+function updateScrollbar() {
 
     const windowElement =
         document.getElementById("menuWindow");
 
-    const indicator =
-        document.getElementById("scrollIndicator");
+    const thumb =
+        document.getElementById("scrollThumb");
 
 
-    if (!windowElement || !indicator) {
+    if (!windowElement || !thumb) {
         return;
     }
 
@@ -803,15 +842,29 @@ function updateScrollIndicator() {
 
     if (maxScroll <= 0) {
 
-        indicator.style.display =
-            "none";
+        thumb.style.height = "100%";
+        thumb.style.top = "0";
 
         return;
     }
 
 
-    indicator.style.display =
-        "block";
+    const visibleRatio =
+        windowElement.clientHeight /
+        windowElement.scrollHeight;
+
+
+    const thumbHeight =
+        Math.max(
+            20,
+            windowElement.clientHeight *
+            visibleRatio
+        );
+
+
+    const travel =
+        windowElement.clientHeight -
+        thumbHeight;
 
 
     const percentage =
@@ -819,20 +872,16 @@ function updateScrollIndicator() {
         maxScroll;
 
 
-    const available =
-        windowElement.clientHeight *
-        0.72;
+    thumb.style.height =
+        `${thumbHeight}px`;
 
-
-    indicator.style.setProperty(
-        "--scroll-position",
-        `${percentage * available}px`
-    );
+    thumb.style.top =
+        `${travel * percentage}px`;
 }
 
 
 /* =========================================================
-   KEEP SCROLL INDICATOR MOVING
+   NATIVE SCROLL EVENT
    ========================================================= */
 
 document.addEventListener(
@@ -844,7 +893,7 @@ document.addEventListener(
             event.target.id === "menuWindow"
         ) {
 
-            updateScrollIndicator();
+            updateScrollbar();
 
         }
 
@@ -867,20 +916,18 @@ function move(direction) {
     selected += direction;
 
 
-    /*
-       Wrap around
-    */
-
     if (selected < 0) {
 
         selected =
             apps.length - 1;
+
     }
 
 
     if (selected >= apps.length) {
 
         selected = 0;
+
     }
 
 
@@ -928,1055 +975,12 @@ function select() {
             ${app.icon}
             ${app.name}
 
-        </div>
-
-
-        <div class="menu-window">
-
-            <ul class="menu">
-
-                <li class="selected">
-                    ▶ Start
-                </li>
-
-                <li>
-                    Options
-                </li>
-
-                <li>
-                    Saved Data
-                </li>
-
-                <li>
-                    About
-                </li>
-
-            </ul>
-
-        </div>
-
-
-        <div class="info">
-
-            FLIPPER ONE<br>
-            Virtual environment.
-
-        </div>
-
-    `;
-}
-
-
-/* =========================================================
-   BACK
-   ========================================================= */
-
-function back() {
-
-    if (page !== "home") {
-
-        renderHome();
-
-    }
-}
-
-
-/* =========================================================
-   HOME
-   ========================================================= */
-
-function home() {
-
-    selected = 0;
-
-    renderHome();
-
-}
-
-
-/* =========================================================
-   KEYBOARD CONTROLS
-   ========================================================= */
-
-document.addEventListener(
-    "keydown",
-    function(event) {
-
-        if (event.key === "ArrowUp") {
-
-            event.preventDefault();
-
-            move(-1);
-
-        }
-
-
-        if (event.key === "ArrowDown") {
-
-            event.preventDefault();
-
-            move(1);
-
-        }
-
-
-        if (
-            event.key === "ArrowRight" ||
-            event.key === "Enter"
-        ) {
-
-            event.preventDefault();
-
-            select();
-
-        }
-
-
-        if (
-            event.key === "ArrowLeft" ||
-            event.key === "Escape" ||
-            event.key === "Backspace"
-        ) {
-
-            event.preventDefault();
-
-            back();
-
-        }
-
-
-        if (event.key === "Home") {
-
-            event.preventDefault();
-
-            home();
-
-        }
-
-    }
-);
-
-
-/* =========================================================
-   START
-   ========================================================= */
-
-renderHome();
-
-</script>
-
-</body>
-</html><!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Flipper One Simulator</title>
-
-<style>
-
-* {
-    box-sizing: border-box;
-}
-
-html,
-body {
-    margin: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-
-    background: #111;
-
-    font-family: monospace;
-}
-
-
-/* =========================================================
-   DEVICE
-   ========================================================= */
-
-#app {
-    width: 100%;
-    height: 100%;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.device {
-    position: relative;
-
-    width: min(100vw, 1024px);
-
-    aspect-ratio: 1024 / 448;
-
-    background-image:
-        url("./flipperone-shell-overlay.png");
-
-    background-size: 100% 100%;
-    background-position: center;
-    background-repeat: no-repeat;
-}
-
-
-/* =========================================================
-   LCD SCREEN
-
-   Aligned back with the actual LCD opening in
-   flipperone-shell-overlay.png
-   ========================================================= */
-
-.screen {
-    position: absolute;
-
-    /* moved up a little */
-    top: 23.4%;
-
-    /* moved slightly left */
-    left: 33.3%;
-
-    /* made bigger */
-    width: 35.4%;
-    height: 45.2%;
-
-    z-index: 20;
-
-    background: #f28c28;
-
-    color: #321400;
-
-    padding: 8px;
-
-    overflow: hidden;
-
-    border: none;
-    border-radius: 2px;
-
-    font-family: monospace;
-
-    box-shadow:
-        inset 0 0 0 2px rgba(55, 20, 0, 0.25),
-        inset 0 0 14px rgba(90, 30, 0, 0.18);
-
-    isolation: isolate;
-}
-
-
-/* =========================================================
-   TOP BAR
-   ========================================================= */
-
-.status {
-    position: relative;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: space-between;
-
-    /*
-       Slightly darker orange than LCD
-    */
-
-    background: #d96f18;
-
-    color: #241000;
-
-    margin: -8px -8px 0 -8px;
-
-    padding: 5px 8px;
-
-    height: 24px;
-
-    border-bottom: 2px solid #a84d0d;
-
-    font-size: 10px;
-
-    font-weight: bold;
-}
-
-
-/* =========================================================
-   TITLE
-   ========================================================= */
-
-.title {
-    text-align: center;
-
-    font-size: 14px;
-
-    font-weight: bold;
-
-    margin: 6px 0;
-
-    height: 18px;
-
-    line-height: 18px;
-}
-
-
-/* =========================================================
-   MENU VIEWPORT
-   ========================================================= */
-
-.menu-window {
-    position: relative;
-
-    width: 100%;
-
-    /*
-       Enough room for the app list
-    */
-
-    height: 122px;
-
-    overflow: hidden;
-}
-
-
-/* =========================================================
-   MENU
-   ========================================================= */
-
-.menu {
-    list-style: none;
-
-    padding: 0;
-    margin: 0;
-
-    width: calc(100% - 6px);
-
-    transition:
-        transform 0.12s ease-out;
-}
-
-
-/* =========================================================
-   APP ROW
-   ========================================================= */
-
-.menu li {
-    height: 22px;
-
-    line-height: 22px;
-
-    padding: 0 6px;
-
-    margin: 1px 0;
-
-    font-size: 11px;
-
-    white-space: nowrap;
-
-    overflow: hidden;
-
-    text-overflow: ellipsis;
-
-    border-radius: 2px;
-}
-
-
-/* =========================================================
-   SELECTED APP
-   ========================================================= */
-
-.menu li.selected {
-    background: #321400;
-
-    color: #f28c28;
-}
-
-
-/* =========================================================
-   SCROLLBAR
-   ========================================================= */
-
-.scrollbar {
-    position: absolute;
-
-    top: 0;
-    right: 1px;
-
-    width: 3px;
-    height: 122px;
-
-    background: rgba(60, 20, 0, 0.18);
-
-    border-radius: 3px;
-}
-
-.scroll-thumb {
-    position: absolute;
-
-    right: 0;
-
-    width: 3px;
-
-    background: #321400;
-
-    border-radius: 3px;
-
-    transition:
-        top 0.12s ease-out;
-}
-
-
-/* =========================================================
-   INFO BAR
-   ========================================================= */
-
-.info {
-    position: absolute;
-
-    left: 8px;
-    right: 8px;
-    bottom: 5px;
-
-    padding-top: 3px;
-
-    border-top:
-        1px solid rgba(80, 30, 0, 0.35);
-
-    background: #f28c28;
-
-    font-size: 8px;
-
-    line-height: 10px;
-}
-
-
-/* =========================================================
-   INVISIBLE PHYSICAL BUTTONS
-   ========================================================= */
-
-.control {
-    position: absolute;
-
-    z-index: 50;
-
-    border: none;
-
-    background: transparent;
-
-    padding: 0;
-    margin: 0;
-
-    cursor: pointer;
-
-    -webkit-tap-highlight-color: transparent;
-}
-
-
-/* =========================================================
-   UP
-   ========================================================= */
-
-.up {
-    left: 72.5%;
-    top: 29%;
-
-    width: 10%;
-    height: 11%;
-}
-
-
-/* =========================================================
-   DOWN
-   ========================================================= */
-
-.down {
-    left: 72.5%;
-    top: 47%;
-
-    width: 10%;
-    height: 11%;
-}
-
-
-/* =========================================================
-   LEFT
-   ========================================================= */
-
-.left {
-    left: 70%;
-    top: 37%;
-
-    width: 9%;
-    height: 13%;
-}
-
-
-/* =========================================================
-   RIGHT
-   ========================================================= */
-
-.right {
-    left: 79%;
-    top: 37%;
-
-    width: 9%;
-    height: 13%;
-}
-
-
-/* =========================================================
-   OK
-   ========================================================= */
-
-.ok {
-    left: 76%;
-    top: 35%;
-
-    width: 7%;
-    height: 13%;
-
-    border-radius: 50%;
-}
-
-
-/* =========================================================
-   BACK
-   ========================================================= */
-
-.back {
-    left: 84%;
-    top: 59%;
-
-    width: 8%;
-    height: 12%;
-
-    border-radius: 50%;
-}
-
-
-/* =========================================================
-   BOTTOM LEFT
-   ========================================================= */
-
-.bottom-left {
-    left: 34%;
-    top: 73%;
-
-    width: 7%;
-    height: 8%;
-}
-
-
-/* =========================================================
-   BOTTOM RIGHT
-   ========================================================= */
-
-.bottom-right {
-    left: 61%;
-    top: 73%;
-
-    width: 7%;
-    height: 8%;
-}
-
-
-/* =========================================================
-   MOBILE
-   ========================================================= */
-
-@media (max-width: 600px) {
-
-    .screen {
-        padding: 5px;
-    }
-
-    .status {
-        height: 16px;
-
-        margin: -5px -5px 0 -5px;
-
-        padding: 3px 5px;
-
-        font-size: 6px;
-    }
-
-    .title {
-        font-size: 9px;
-
-        height: 14px;
-
-        line-height: 14px;
-
-        margin: 3px 0;
-    }
-
-    .menu-window {
-        height: 88px;
-    }
-
-    .menu li {
-        height: 17px;
-
-        line-height: 17px;
-
-        font-size: 7px;
-    }
-
-    .scrollbar {
-        height: 88px;
-    }
-
-    .info {
-        font-size: 5px;
-
-        line-height: 7px;
-    }
-}
-
-</style>
-</head>
-
-
-<body>
-
-<div id="app">
-
-    <div class="device">
-
-        <!-- =================================================
-             SIMULATED ORANGE LCD
-             ================================================= -->
-
-        <div
-            id="screen"
-            class="screen">
-        </div>
-
-
-        <!-- =================================================
-             PHYSICAL BUTTON HIT AREAS
-             ================================================= -->
-
-        <button
-            class="control up"
-            onclick="move(-1)"
-            aria-label="Up">
-        </button>
-
-
-        <button
-            class="control down"
-            onclick="move(1)"
-            aria-label="Down">
-        </button>
-
-
-        <button
-            class="control left"
-            onclick="back()"
-            aria-label="Back">
-        </button>
-
-
-        <button
-            class="control right"
-            onclick="select()"
-            aria-label="Select">
-        </button>
-
-
-        <button
-            class="control ok"
-            onclick="select()"
-            aria-label="OK">
-        </button>
-
-
-        <button
-            class="control back"
-            onclick="back()"
-            aria-label="Back">
-        </button>
-
-
-        <button
-            class="control bottom-left"
-            onclick="back()"
-            aria-label="Back">
-        </button>
-
-
-        <button
-            class="control bottom-right"
-            onclick="home()"
-            aria-label="Home">
-        </button>
-
-    </div>
-
-</div>
-
-
-<script>
-
-/* =========================================================
-   FLIPPER ONE APPS
-   ========================================================= */
-
-const apps = [
-
-    {
-        icon: "📡",
-        name: "Radio / SDR"
-    },
-
-    {
-        icon: "🌐",
-        name: "Network"
-    },
-
-    {
-        icon: "📶",
-        name: "Wi-Fi"
-    },
-
-    {
-        icon: "📱",
-        name: "Cellular"
-    },
-
-    {
-        icon: "🛰️",
-        name: "Satellite"
-    },
-
-    {
-        icon: "🤖",
-        name: "AI"
-    },
-
-    {
-        icon: "💻",
-        name: "Terminal"
-    },
-
-    {
-        icon: "🔧",
-        name: "Tools"
-    },
-
-    {
-        icon: "📂",
-        name: "Files"
-    },
-
-    {
-        icon: "⚙️",
-        name: "Settings"
-    },
-
-    {
-        icon: "🧩",
-        name: "Apps"
-    },
-
-    {
-        icon: "🔌",
-        name: "Modules"
-    }
-
-];
-
-
-/* =========================================================
-   STATE
-   ========================================================= */
-
-let selected = 0;
-
-let page = "home";
-
-const screen =
-    document.getElementById("screen");
-
-
-/* =========================================================
-   HOME SCREEN
-   ========================================================= */
-
-function renderHome() {
-
-    page = "home";
-
-    screen.innerHTML = `
-
-        <div class="status">
-
-            <span>
-                FLIPPER ONE
-            </span>
-
-            <span>
-                BAT 87%
-            </span>
-
-        </div>
-
-
-        <div class="title">
-            Applications
         </div>
 
 
         <div
             class="menu-window"
-            id="menuWindow">
-
-            <ul
-                class="menu"
-                id="menu">
-
-                ${
-                    apps.map((app, index) => `
-
-                        <li
-                            class="${
-                                index === selected
-                                    ? "selected"
-                                    : ""
-                            }">
-
-                            ${app.icon}
-                            ${app.name}
-
-                        </li>
-
-                    `).join("")
-                }
-
-            </ul>
-
-
-            <div class="scrollbar">
-
-                <div
-                    class="scroll-thumb"
-                    id="scrollThumb">
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <div class="info">
-
-            ▲ ▼ Navigate
-            &nbsp;&nbsp;
-            ▶ Select
-
-        </div>
-    `;
-
-    updateScroll();
-}
-
-
-/* =========================================================
-   SCROLL
-   ========================================================= */
-
-function updateScroll() {
-
-    const menu =
-        document.getElementById("menu");
-
-    const windowElement =
-        document.getElementById("menuWindow");
-
-    const thumb =
-        document.getElementById("scrollThumb");
-
-
-    if (!menu || !windowElement) {
-        return;
-    }
-
-
-    const rowHeight = 23;
-
-    const visibleRows =
-        Math.floor(
-            windowElement.clientHeight /
-            rowHeight
-        );
-
-
-    const maxScroll =
-        Math.max(
-            0,
-            apps.length - visibleRows
-        );
-
-
-    let scrollIndex = 0;
-
-
-    /*
-       Keep selected app visible
-    */
-
-    if (selected >= visibleRows) {
-
-        scrollIndex =
-            selected - visibleRows + 1;
-    }
-
-
-    if (scrollIndex > maxScroll) {
-
-        scrollIndex =
-            maxScroll;
-    }
-
-
-    if (scrollIndex < 0) {
-
-        scrollIndex = 0;
-    }
-
-
-    menu.style.transform =
-        `translateY(-${scrollIndex * rowHeight}px)`;
-
-
-    /*
-       Scrollbar
-    */
-
-    if (!thumb) {
-        return;
-    }
-
-
-    if (maxScroll === 0) {
-
-        thumb.style.height = "100%";
-
-        thumb.style.top = "0";
-
-        return;
-    }
-
-
-    const trackHeight =
-        windowElement.clientHeight;
-
-
-    const thumbHeight =
-        Math.max(
-            20,
-            trackHeight *
-            (visibleRows / apps.length)
-        );
-
-
-    const travel =
-        trackHeight -
-        thumbHeight;
-
-
-    const percentage =
-        scrollIndex / maxScroll;
-
-
-    thumb.style.height =
-        `${thumbHeight}px`;
-
-
-    thumb.style.top =
-        `${travel * percentage}px`;
-}
-
-
-/* =========================================================
-   MOVE
-   ========================================================= */
-
-function move(direction) {
-
-    if (page !== "home") {
-        return;
-    }
-
-
-    selected += direction;
-
-
-    /*
-       Wrap around
-    */
-
-    if (selected < 0) {
-
-        selected =
-            apps.length - 1;
-    }
-
-
-    if (selected >= apps.length) {
-
-        selected = 0;
-    }
-
-
-    renderHome();
-}
-
-
-/* =========================================================
-   SELECT
-   ========================================================= */
-
-function select() {
-
-    if (page !== "home") {
-        return;
-    }
-
-
-    const app =
-        apps[selected];
-
-
-    page =
-        app.name;
-
-
-    screen.innerHTML = `
-
-        <div class="status">
-
-            <span>
-                ${app.icon}
-                ${app.name}
-            </span>
-
-            <span>
-                BAT 87%
-            </span>
-
-        </div>
-
-
-        <div class="title">
-
-            ${app.icon}
-            ${app.name}
-
-        </div>
-
-
-        <div class="menu-window">
+        >
 
             <ul class="menu">
 
@@ -2007,6 +1011,7 @@ function select() {
             Virtual environment.
 
         </div>
+
     `;
 }
 
@@ -2020,6 +1025,7 @@ function back() {
     if (page !== "home") {
 
         renderHome();
+
     }
 }
 
@@ -2033,6 +1039,7 @@ function home() {
     selected = 0;
 
     renderHome();
+
 }
 
 
@@ -2044,50 +1051,58 @@ document.addEventListener(
     "keydown",
     function(event) {
 
-        if (event.key === "ArrowUp") {
+        switch (event.key) {
 
-            event.preventDefault();
+            case "ArrowUp":
 
-            move(-1);
-        }
+                event.preventDefault();
 
+                move(-1);
 
-        if (event.key === "ArrowDown") {
-
-            event.preventDefault();
-
-            move(1);
-        }
+                break;
 
 
-        if (
-            event.key === "ArrowRight" ||
-            event.key === "Enter"
-        ) {
+            case "ArrowDown":
 
-            event.preventDefault();
+                event.preventDefault();
 
-            select();
-        }
+                move(1);
+
+                break;
 
 
-        if (
-            event.key === "ArrowLeft" ||
-            event.key === "Escape" ||
-            event.key === "Backspace"
-        ) {
+            case "ArrowRight":
 
-            event.preventDefault();
+            case "Enter":
 
-            back();
-        }
+                event.preventDefault();
+
+                select();
+
+                break;
 
 
-        if (event.key === "Home") {
+            case "ArrowLeft":
 
-            event.preventDefault();
+            case "Escape":
 
-            home();
+            case "Backspace":
+
+                event.preventDefault();
+
+                back();
+
+                break;
+
+
+            case "Home":
+
+                event.preventDefault();
+
+                home();
+
+                break;
+
         }
 
     }
