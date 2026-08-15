@@ -105,35 +105,37 @@ body {
 /* =========================================================
    TOP BAR
    ========================================================= */
+.screen {
+    position: absolute;
 
-.status {
-    display: flex;
+    left: 50.25%;
+    top: 45.1%;
 
-    align-items: center;
-    justify-content: space-between;
+    /* ONLY makes the left side shorter */
+    width: calc(33.5% - 2mm);
+    height: 42.8%;
 
-    /*
-       Slightly darker than the LCD
-    */
+    transform: translate(-50%, -50%);
 
-    background: #d96f18;
+    z-index: 10;
 
-    color: #241000;
+    background: #f28c28;
+    color: #321400;
 
-    margin: -8px -8px 0 -8px;
+    padding: 8px;
 
-    padding: 5px 8px;
+    border: none;
+    border-radius: 2px;
 
-    height: 24px;
+    overflow: hidden;
 
-    border-bottom: 2px solid #a84d0d;
+    font-family: monospace;
 
-    font-size: 10px;
-
-    font-weight: bold;
-
-    flex-shrink: 0;
+    box-shadow:
+        inset 0 0 0 2px rgba(55, 20, 0, 0.25),
+        inset 0 0 14px rgba(90, 30, 0, 0.18);
 }
+
 
 
 /* =========================================================
