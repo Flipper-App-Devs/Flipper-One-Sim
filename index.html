@@ -10,7 +10,8 @@
   box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
   margin: 0;
   width: 100%;
   height: 100%;
@@ -23,37 +24,50 @@ html, body {
   width: 100%;
   height: 100%;
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
 }
 
 .device {
   position: relative;
+
   width: min(100vw, 1024px);
   aspect-ratio: 1024 / 448;
 }
 
-/* THE ACTUAL OVERLAY IMAGE */
-#deviceImage {
+/* YOUR GITHUB OVERLAY IMAGE */
+.device-image {
   position: absolute;
   inset: 0;
+
   width: 100%;
   height: 100%;
+
   object-fit: contain;
+
   z-index: 1;
 }
 
-/* Simulator LCD */
+/*
+   SCREEN IN THE ACTUAL DEVICE
+
+   Your PNG is 1024 x 448.
+
+   LCD opening:
+   x ≈ 335
+   y ≈ 108
+   width ≈ 354
+   height ≈ 202
+*/
+
 .screen {
   position: absolute;
 
-  /*
-    Position of the white LCD in your uploaded image
-  */
-  left: 33.45%;
-  top: 24.8%;
-  width: 34.9%;
-  height: 44.3%;
+  left: 32.7%;
+  top: 24.1%;
+
+  width: 35.1%;
+  height: 45.0%;
 
   z-index: 2;
 
@@ -69,113 +83,11 @@ html, body {
   border-radius: 2px;
 
   box-shadow:
-    inset 0 0 0 2px rgba(0,0,0,.15),
+    inset 0 0 0 2px rgba(0,0,0,.25),
     inset 0 0 15px rgba(0,0,0,.15);
 }
 
-/* UI buttons */
-
-.control {
-  position: absolute;
-  z-index: 5;
-
-  border: 0;
-  background: transparent;
-
-  cursor: pointer;
-
-  -webkit-tap-highlight-color: transparent;
-}
-
-/* D-pad */
-
-.up {
-  left: 72.5%;
-  top: 29%;
-  width: 10%;
-  height: 11%;
-}
-
-.down {
-  left: 72.5%;
-  top: 47%;
-  width: 10%;
-  height: 11%;
-}
-
-.left {
-  left: 70%;
-  top: 37%;
-  width: 9%;
-  height: 13%;
-}
-
-.right {
-  left: 79%;
-  top: 37%;
-  width: 9%;
-  height: 13%;
-}
-
-.ok {
-  left: 76%;
-  top: 35%;
-  width: 7%;
-  height: 13%;
-  border-radius: 50%;
-}
-
-/* Back orange button */
-
-.back {
-  left: 84%;
-  top: 59%;
-  width: 8%;
-  height: 12%;
-  border-radius: 50%;
-}
-
-/* Bottom buttons */
-
-.bottom-left {
-  left: 34%;
-  top: 73%;
-  width: 7%;
-  height: 8%;
-}
-
-.bottom-right {
-  left: 61%;
-  top: 73%;
-  width: 7%;
-  height: 8%;
-}
-
-/* Overlay upload */
-
-#uploadPanel {
-  position: fixed;
-  left: 15px;
-  bottom: 15px;
-
-  z-index: 20;
-
-  padding: 10px 14px;
-
-  color: white;
-  background: rgba(0,0,0,.75);
-
-  border-radius: 8px;
-
-  font-family: Arial,sans-serif;
-  font-size: 13px;
-}
-
-#uploadPanel input {
-  max-width: 230px;
-}
-
-/* Home screen */
+/* SCREEN */
 
 .status {
   display: flex;
@@ -219,12 +131,98 @@ html, body {
 }
 
 .info {
-  font-size: 10px;
   margin-top: 8px;
+
+  font-size: 10px;
+
   line-height: 1.4;
 }
 
-@media(max-width:600px) {
+/* INVISIBLE BUTTON HIT AREAS */
+
+.control {
+  position: absolute;
+
+  z-index: 5;
+
+  border: 0;
+
+  background: transparent;
+
+  cursor: pointer;
+
+  padding: 0;
+}
+
+/* D-PAD */
+
+.up {
+  left: 72.5%;
+  top: 29%;
+  width: 10%;
+  height: 11%;
+}
+
+.down {
+  left: 72.5%;
+  top: 47%;
+  width: 10%;
+  height: 11%;
+}
+
+.left {
+  left: 70%;
+  top: 37%;
+  width: 9%;
+  height: 13%;
+}
+
+.right {
+  left: 79%;
+  top: 37%;
+  width: 9%;
+  height: 13%;
+}
+
+.ok {
+  left: 76%;
+  top: 35%;
+  width: 7%;
+  height: 13%;
+
+  border-radius: 50%;
+}
+
+/* ORANGE BACK BUTTON */
+
+.back {
+  left: 84%;
+  top: 59%;
+  width: 8%;
+  height: 12%;
+
+  border-radius: 50%;
+}
+
+/* BOTTOM PHYSICAL BUTTONS */
+
+.bottom-left {
+  left: 34%;
+  top: 73%;
+  width: 7%;
+  height: 8%;
+}
+
+.bottom-right {
+  left: 61%;
+  top: 73%;
+  width: 7%;
+  height: 8%;
+}
+
+/* MOBILE */
+
+@media (max-width: 600px) {
 
   .screen {
     padding: 5px;
@@ -257,95 +255,102 @@ html, body {
 
   <div class="device">
 
-    <!-- DEVICE OVERLAY -->
+    <!--
+      THIS IS THE IMAGE ALREADY IN YOUR GITHUB REPO.
+      Do NOT change this filename.
+    -->
     <img
-      id="deviceImage"
-      alt="Flipper One shell"
-      src="flipperone-shell-overlay-1024.jpg"
+      class="device-image"
+      src="./flipperone-shell-overlay.png"
+      alt="Flipper One"
     >
 
-    <!-- SIMULATED SCREEN -->
+    <!-- SIMULATED LCD -->
     <div id="screen" class="screen"></div>
 
     <!-- PHYSICAL BUTTON HIT AREAS -->
 
-    <button class="control up"
-      onclick="move(-1)"></button>
+    <button
+      class="control up"
+      onclick="move(-1)">
+    </button>
 
-    <button class="control down"
-      onclick="move(1)"></button>
+    <button
+      class="control down"
+      onclick="move(1)">
+    </button>
 
-    <button class="control left"
-      onclick="back()"></button>
+    <button
+      class="control left"
+      onclick="back()">
+    </button>
 
-    <button class="control right"
-      onclick="select()"></button>
+    <button
+      class="control right"
+      onclick="select()">
+    </button>
 
-    <button class="control ok"
-      onclick="select()"></button>
+    <button
+      class="control ok"
+      onclick="select()">
+    </button>
 
-    <button class="control back"
-      onclick="back()"></button>
+    <button
+      class="control back"
+      onclick="back()">
+    </button>
 
-    <button class="control bottom-left"
-      onclick="back()"></button>
+    <button
+      class="control bottom-left"
+      onclick="back()">
+    </button>
 
-    <button class="control bottom-right"
-      onclick="toggleMenu()"></button>
+    <button
+      class="control bottom-right"
+      onclick="home()">
+    </button>
 
   </div>
+
 </div>
-
-
-<!--
-  If the JPG isn't beside this HTML file,
-  choose the uploaded image here.
--->
-<div id="uploadPanel">
-  Overlay image:
-  <input
-    type="file"
-    id="imageLoader"
-    accept="image/*"
-  >
-</div>
-
 
 <script>
 
 const apps = [
-  ["◈", "Sub-GHz"],
-  ["▣", "NFC"],
-  ["●", "Infrared"],
-  ["◇", "GPIO"],
-  ["◆", "Games"],
-  ["⚙", "Settings"]
+  {
+    icon: "◈",
+    name: "Sub-GHz"
+  },
+  {
+    icon: "▣",
+    name: "NFC"
+  },
+  {
+    icon: "●",
+    name: "Infrared"
+  },
+  {
+    icon: "◇",
+    name: "GPIO"
+  },
+  {
+    icon: "◆",
+    name: "Games"
+  },
+  {
+    icon: "⚙",
+    name: "Settings"
+  }
 ];
 
 let selected = 0;
 let page = "home";
 
-const screen = document.getElementById("screen");
-const image = document.getElementById("deviceImage");
-const loader = document.getElementById("imageLoader");
+const screen =
+  document.getElementById("screen");
 
 
-/* Load overlay from file picker */
-
-loader.addEventListener("change", function() {
-
-  const file = this.files[0];
-
-  if (!file) return;
-
-  const url = URL.createObjectURL(file);
-
-  image.src = url;
-
-});
-
-
-/* Screen */
+/* HOME */
 
 function renderHome() {
 
@@ -367,7 +372,7 @@ function renderHome() {
       ${apps.map((app, i) => `
 
         <li class="${i === selected ? "selected" : ""}">
-          ${app[0]} ${app[1]}
+          ${app.icon} ${app.name}
         </li>
 
       `).join("")}
@@ -383,9 +388,12 @@ function renderHome() {
 }
 
 
+/* UP / DOWN */
+
 function move(direction) {
 
-  if (page !== "home") return;
+  if (page !== "home")
+    return;
 
   selected += direction;
 
@@ -399,23 +407,26 @@ function move(direction) {
 }
 
 
+/* SELECT */
+
 function select() {
 
-  if (page !== "home") return;
+  if (page !== "home")
+    return;
 
-  const name = apps[selected][1];
+  const app = apps[selected];
 
-  page = name;
+  page = app.name;
 
   screen.innerHTML = `
 
     <div class="status">
-      <span>${name}</span>
+      <span>${app.name}</span>
       <span>BAT 87%</span>
     </div>
 
     <div class="title">
-      ${name}
+      ${app.icon} ${app.name}
     </div>
 
     <ul class="menu">
@@ -443,6 +454,8 @@ function select() {
 }
 
 
+/* BACK */
+
 function back() {
 
   if (page !== "home") {
@@ -452,32 +465,48 @@ function back() {
 }
 
 
-function toggleMenu() {
+/* HOME */
+
+function home() {
   renderHome();
 }
 
 
-/* Keyboard */
+/* KEYBOARD */
 
 document.addEventListener("keydown", function(e) {
 
-  if (e.key === "ArrowUp")
-    move(-1);
+  switch (e.key) {
 
-  if (e.key === "ArrowDown")
-    move(1);
+    case "ArrowUp":
+      move(-1);
+      break;
 
-  if (e.key === "ArrowRight" ||
-      e.key === "Enter")
-    select();
+    case "ArrowDown":
+      move(1);
+      break;
 
-  if (e.key === "ArrowLeft" ||
-      e.key === "Escape" ||
-      e.key === "Backspace")
-    back();
+    case "ArrowRight":
+    case "Enter":
+      select();
+      break;
+
+    case "ArrowLeft":
+    case "Escape":
+    case "Backspace":
+      back();
+      break;
+
+    case "Home":
+      home();
+      break;
+
+  }
 
 });
 
+
+/* START */
 
 renderHome();
 
