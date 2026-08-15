@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Flipper One Simulator</title>
 
 <style>
@@ -19,64 +19,170 @@ html, body {
   font-family: monospace;
 }
 
-/* Device */
+#app {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .device {
   position: relative;
   width: min(100vw, 1024px);
   aspect-ratio: 1024 / 448;
-  margin: auto;
-  top: 50%;
-  transform: translateY(-50%);
-  background: url("flipperone-shell-overlay-1024.jpg")
-              center / 100% 100% no-repeat;
 }
 
-/*
-  Screen position based on your uploaded image.
+/* THE ACTUAL OVERLAY IMAGE */
+#deviceImage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  z-index: 1;
+}
 
-  Image:
-  1024 x 448
-
-  Screen:
-  approximately x=344
-  y=112
-  width=356
-  height=198
-*/
-
+/* Simulator LCD */
 .screen {
   position: absolute;
 
-  left: 33.6%;
+  /*
+    Position of the white LCD in your uploaded image
+  */
+  left: 33.45%;
   top: 24.8%;
-  width: 34.8%;
-  height: 44.2%;
+  width: 34.9%;
+  height: 44.3%;
+
+  z-index: 2;
 
   background: #9bbc0f;
   color: #102000;
-
-  border: 0;
-  border-radius: 2px;
 
   padding: 10px;
 
   overflow: hidden;
 
-  image-rendering: pixelated;
   font-family: monospace;
 
+  border-radius: 2px;
+
   box-shadow:
-    inset 0 0 0 2px rgba(0,0,0,.25),
-    inset 0 0 18px rgba(0,0,0,.15);
+    inset 0 0 0 2px rgba(0,0,0,.15),
+    inset 0 0 15px rgba(0,0,0,.15);
 }
 
-/* Screen content */
+/* UI buttons */
+
+.control {
+  position: absolute;
+  z-index: 5;
+
+  border: 0;
+  background: transparent;
+
+  cursor: pointer;
+
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* D-pad */
+
+.up {
+  left: 72.5%;
+  top: 29%;
+  width: 10%;
+  height: 11%;
+}
+
+.down {
+  left: 72.5%;
+  top: 47%;
+  width: 10%;
+  height: 11%;
+}
+
+.left {
+  left: 70%;
+  top: 37%;
+  width: 9%;
+  height: 13%;
+}
+
+.right {
+  left: 79%;
+  top: 37%;
+  width: 9%;
+  height: 13%;
+}
+
+.ok {
+  left: 76%;
+  top: 35%;
+  width: 7%;
+  height: 13%;
+  border-radius: 50%;
+}
+
+/* Back orange button */
+
+.back {
+  left: 84%;
+  top: 59%;
+  width: 8%;
+  height: 12%;
+  border-radius: 50%;
+}
+
+/* Bottom buttons */
+
+.bottom-left {
+  left: 34%;
+  top: 73%;
+  width: 7%;
+  height: 8%;
+}
+
+.bottom-right {
+  left: 61%;
+  top: 73%;
+  width: 7%;
+  height: 8%;
+}
+
+/* Overlay upload */
+
+#uploadPanel {
+  position: fixed;
+  left: 15px;
+  bottom: 15px;
+
+  z-index: 20;
+
+  padding: 10px 14px;
+
+  color: white;
+  background: rgba(0,0,0,.75);
+
+  border-radius: 8px;
+
+  font-family: Arial,sans-serif;
+  font-size: 13px;
+}
+
+#uploadPanel input {
+  max-width: 230px;
+}
+
+/* Home screen */
 
 .status {
   display: flex;
   justify-content: space-between;
 
   border-bottom: 2px solid #315000;
+
   padding-bottom: 5px;
 
   font-size: 11px;
@@ -84,20 +190,26 @@ html, body {
 
 .title {
   text-align: center;
-  font-size: 16px;
+
   font-weight: bold;
+
+  font-size: 16px;
+
   margin: 8px 0;
 }
 
 .menu {
   list-style: none;
+
+  margin: 0;
   padding: 0;
-  margin: 4px 0;
 }
 
 .menu li {
   padding: 5px 7px;
+
   margin: 2px 0;
+
   font-size: 13px;
 }
 
@@ -107,119 +219,33 @@ html, body {
 }
 
 .info {
-  margin-top: 8px;
   font-size: 10px;
+  margin-top: 8px;
   line-height: 1.4;
 }
 
-/* Invisible clickable controls over the physical buttons */
-
-.control {
-  position: absolute;
-  background: transparent;
-  border: 0;
-  cursor: pointer;
-  z-index: 10;
-}
-
-/* Orange D-pad */
-
-.up {
-  left: 75.0%;
-  top: 31%;
-  width: 10%;
-  height: 9%;
-}
-
-.down {
-  left: 75.0%;
-  top: 48%;
-  width: 10%;
-  height: 9%;
-}
-
-.left {
-  left: 72%;
-  top: 39%;
-  width: 8%;
-  height: 12%;
-}
-
-.right {
-  left: 80%;
-  top: 39%;
-  width: 8%;
-  height: 12%;
-}
-
-/* Orange center button */
-.ok {
-  left: 78%;
-  top: 37%;
-  width: 5%;
-  height: 10%;
-  border-radius: 50%;
-}
-
-/* Back button */
-.back {
-  left: 84.5%;
-  top: 58%;
-  width: 7%;
-  height: 11%;
-  border-radius: 50%;
-}
-
-/* Bottom buttons */
-.bottom-back {
-  left: 34%;
-  top: 74%;
-  width: 6%;
-  height: 8%;
-}
-
-.bottom-menu {
-  left: 55%;
-  top: 74%;
-  width: 6%;
-  height: 8%;
-}
-
-/* Prevent accidental selection */
-button {
-  -webkit-tap-highlight-color: transparent;
-}
-
-button:active {
-  outline: none;
-}
-
-/* Mobile scaling */
-@media (max-width: 600px) {
-  .device {
-    width: 100vw;
-  }
+@media(max-width:600px) {
 
   .screen {
-    padding: 6px;
-  }
-
-  .title {
-    font-size: 11px;
-    margin: 4px 0;
-  }
-
-  .menu li {
-    padding: 3px 5px;
-    font-size: 9px;
+    padding: 5px;
   }
 
   .status {
+    font-size: 7px;
+  }
+
+  .title {
+    font-size: 10px;
+    margin: 3px;
+  }
+
+  .menu li {
     font-size: 8px;
+    padding: 3px;
   }
 
   .info {
-    font-size: 7px;
+    font-size: 6px;
   }
 }
 </style>
@@ -227,91 +253,141 @@ button:active {
 
 <body>
 
-<div class="device">
+<div id="app">
 
-  <!-- Actual simulator screen -->
-  <div id="screen" class="screen"></div>
+  <div class="device">
 
-  <!-- Physical controls -->
-  <button class="control up" onclick="move(-1)"></button>
-  <button class="control down" onclick="move(1)"></button>
-  <button class="control left" onclick="back()"></button>
-  <button class="control right" onclick="select()"></button>
+    <!-- DEVICE OVERLAY -->
+    <img
+      id="deviceImage"
+      alt="Flipper One shell"
+      src="flipperone-shell-overlay-1024.jpg"
+    >
 
-  <button class="control ok" onclick="select()"></button>
-  <button class="control back" onclick="back()"></button>
+    <!-- SIMULATED SCREEN -->
+    <div id="screen" class="screen"></div>
 
-  <button class="control bottom-back" onclick="back()"></button>
-  <button class="control bottom-menu" onclick="toggleMenu()"></button>
+    <!-- PHYSICAL BUTTON HIT AREAS -->
 
+    <button class="control up"
+      onclick="move(-1)"></button>
+
+    <button class="control down"
+      onclick="move(1)"></button>
+
+    <button class="control left"
+      onclick="back()"></button>
+
+    <button class="control right"
+      onclick="select()"></button>
+
+    <button class="control ok"
+      onclick="select()"></button>
+
+    <button class="control back"
+      onclick="back()"></button>
+
+    <button class="control bottom-left"
+      onclick="back()"></button>
+
+    <button class="control bottom-right"
+      onclick="toggleMenu()"></button>
+
+  </div>
 </div>
+
+
+<!--
+  If the JPG isn't beside this HTML file,
+  choose the uploaded image here.
+-->
+<div id="uploadPanel">
+  Overlay image:
+  <input
+    type="file"
+    id="imageLoader"
+    accept="image/*"
+  >
+</div>
+
 
 <script>
 
 const apps = [
-  {
-    icon: "◈",
-    name: "Sub-GHz"
-  },
-  {
-    icon: "▣",
-    name: "NFC"
-  },
-  {
-    icon: "●",
-    name: "Infrared"
-  },
-  {
-    icon: "◇",
-    name: "GPIO"
-  },
-  {
-    icon: "◆",
-    name: "Games"
-  },
-  {
-    icon: "⚙",
-    name: "Settings"
-  }
+  ["◈", "Sub-GHz"],
+  ["▣", "NFC"],
+  ["●", "Infrared"],
+  ["◇", "GPIO"],
+  ["◆", "Games"],
+  ["⚙", "Settings"]
 ];
 
 let selected = 0;
 let page = "home";
 
 const screen = document.getElementById("screen");
+const image = document.getElementById("deviceImage");
+const loader = document.getElementById("imageLoader");
+
+
+/* Load overlay from file picker */
+
+loader.addEventListener("change", function() {
+
+  const file = this.files[0];
+
+  if (!file) return;
+
+  const url = URL.createObjectURL(file);
+
+  image.src = url;
+
+});
+
+
+/* Screen */
 
 function renderHome() {
 
   page = "home";
 
   screen.innerHTML = `
+
     <div class="status">
       <span>FLIPPER ONE</span>
       <span>BAT 87%</span>
     </div>
 
-    <div class="title">Applications</div>
+    <div class="title">
+      Applications
+    </div>
 
     <ul class="menu">
+
       ${apps.map((app, i) => `
+
         <li class="${i === selected ? "selected" : ""}">
-          ${app.icon} ${app.name}
+          ${app[0]} ${app[1]}
         </li>
+
       `).join("")}
+
     </ul>
 
     <div class="info">
       ▲ ▼ Navigate<br>
-      ● Select
+      ▶ Select
     </div>
+
   `;
 }
 
-function move(amount) {
+
+function move(direction) {
 
   if (page !== "home") return;
 
-  selected += amount;
+  selected += direction;
 
   if (selected < 0)
     selected = apps.length - 1;
@@ -322,80 +398,86 @@ function move(amount) {
   renderHome();
 }
 
+
 function select() {
 
   if (page !== "home") return;
 
-  const app = apps[selected].name;
+  const name = apps[selected][1];
 
-  page = app;
+  page = name;
 
   screen.innerHTML = `
+
     <div class="status">
-      <span>${app}</span>
+      <span>${name}</span>
       <span>BAT 87%</span>
     </div>
 
-    <div class="title">${app}</div>
+    <div class="title">
+      ${name}
+    </div>
 
     <ul class="menu">
-      <li class="selected">▶ Start</li>
-      <li>Saved Data</li>
-      <li>Settings</li>
+
+      <li class="selected">
+        ▶ Start
+      </li>
+
+      <li>
+        Saved Data
+      </li>
+
+      <li>
+        Settings
+      </li>
+
     </ul>
 
     <div class="info">
       Simulator mode.<br>
       Hardware functions are virtual.
     </div>
+
   `;
 }
+
 
 function back() {
 
   if (page !== "home") {
     renderHome();
   }
+
 }
 
+
 function toggleMenu() {
-
-  if (page !== "home") {
-    renderHome();
-    return;
-  }
-
-  selected = 0;
   renderHome();
 }
 
-/* Keyboard controls */
 
-document.addEventListener("keydown", e => {
+/* Keyboard */
 
-  switch (e.key) {
+document.addEventListener("keydown", function(e) {
 
-    case "ArrowUp":
-      move(-1);
-      break;
+  if (e.key === "ArrowUp")
+    move(-1);
 
-    case "ArrowDown":
-      move(1);
-      break;
+  if (e.key === "ArrowDown")
+    move(1);
 
-    case "ArrowRight":
-    case "Enter":
-      select();
-      break;
+  if (e.key === "ArrowRight" ||
+      e.key === "Enter")
+    select();
 
-    case "ArrowLeft":
-    case "Escape":
-    case "Backspace":
-      back();
-      break;
-  }
+  if (e.key === "ArrowLeft" ||
+      e.key === "Escape" ||
+      e.key === "Backspace")
+    back();
 
 });
+
 
 renderHome();
 
