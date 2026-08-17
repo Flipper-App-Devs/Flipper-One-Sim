@@ -161,6 +161,78 @@ body {
 
 
 /* =========================================================
+   IDLE SCREEN (dolphin home screen)
+   ========================================================= */
+
+.idle-screen {
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    height: 122px;
+
+    gap: 2px;
+}
+
+.idle-clock {
+    font-size: 20px;
+
+    font-weight: bold;
+
+    letter-spacing: 1px;
+}
+
+.idle-dolphin {
+    font-size: 40px;
+
+    line-height: 1;
+
+    margin: 2px 0;
+
+    filter:
+        grayscale(1)
+        brightness(0.35)
+        sepia(1)
+        saturate(4)
+        hue-rotate(-25deg);
+
+    animation: idle-bob 2.4s ease-in-out infinite;
+}
+
+@keyframes idle-bob {
+
+    0%, 100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-3px);
+    }
+
+}
+
+.idle-waves {
+    font-size: 10px;
+
+    letter-spacing: 1px;
+
+    opacity: 0.6;
+}
+
+.idle-caption {
+    font-size: 9px;
+
+    margin-top: 4px;
+
+    opacity: 0.75;
+}
+
+
+/* =========================================================
    MENU WINDOW
    ========================================================= */
 
@@ -227,47 +299,6 @@ body {
 }
 
 
-/* =========================================================
-   SCROLLBAR
-   ========================================================= */
-
-.scrollbar {
-    position: absolute;
-
-    top: 0;
-    right: 1px;
-
-    width: 3px;
-    height: 100%;
-
-    background: rgba(60, 20, 0, 0.15);
-
-    border-radius: 3px;
-
-    pointer-events: none;
-
-    z-index: 5;
-}
-
-.scroll-thumb {
-    position: absolute;
-
-    top: 0;
-    right: 0;
-
-    width: 3px;
-
-    min-height: 18px;
-
-    background: #321400;
-
-    border-radius: 3px;
-
-    transition:
-        top 0.1s ease,
-        height 0.1s ease;
-}
-
 
 /* =========================================================
    INFO
@@ -292,12 +323,38 @@ body {
     line-height: 10px;
 }
 
+.soft-buttons {
+    display: flex;
+
+    justify-content: flex-end;
+
+    gap: 4px;
+}
+
+.soft-btn {
+    display: inline-block;
+
+    padding: 1px 5px;
+
+    border: 1px solid rgba(50, 20, 0, 0.55);
+
+    border-radius: 3px;
+
+    background: rgba(50, 20, 0, 0.08);
+
+    white-space: nowrap;
+}
+
 
 /* =========================================================
    GENERIC APP CONTENT
    ========================================================= */
 
 .app-content {
+    position: relative;
+
+    width: 100%;
+
     height: 122px;
 
     overflow-y: auto;
@@ -526,6 +583,10 @@ body {
 
         line-height: 7px;
     }
+
+    .soft-btn {
+        padding: 1px 3px;
+    }
 }
 
 </style>
@@ -603,88 +664,49 @@ body {
 <script>
 
 /* =========================================================
-   APPS
+   APPS (home screen list)
    ========================================================= */
 
 const apps = [
 
-    {
-        icon: "📡",
-        name: "Radio / SDR"
-    },
-
-    {
-        icon: "🌐",
-        name: "Network"
-    },
-
-    {
-        icon: "📶",
-        name: "Wi-Fi"
-    },
-
-    {
-        icon: "📱",
-        name: "Cellular"
-    },
-
-    {
-        icon: "🛰️",
-        name: "Satellite"
-    },
-
-    {
-        icon: "🤖",
-        name: "AI"
-    },
-
-    {
-        icon: "💻",
-        name: "Terminal"
-    },
-
-    {
-        icon: "🔧",
-        name: "Tools"
-    },
-
-    {
-        icon: "📂",
-        name: "Files"
-    },
-
-    {
-        icon: "⚙️",
-        name: "Settings"
-    },
-
-    {
-        icon: "🧩",
-        name: "Apps"
-    },
-
-    {
-        icon: "🔌",
-        name: "Modules"
-    }
+    { icon: "📡", name: "Radio / SDR" },
+    { icon: "🌐", name: "Network" },
+    { icon: "📶", name: "Wi-Fi" },
+    { icon: "📱", name: "Cellular" },
+    { icon: "🛰️", name: "Satellite" },
+    { icon: "🤖", name: "AI" },
+    { icon: "💻", name: "Terminal" },
+    { icon: "🔧", name: "Tools" },
+    { icon: "📂", name: "Files" },
+    { icon: "⚙️", name: "Settings" },
+    { icon: "🧩", name: "Apps" },
+    { icon: "🔌", name: "Modules" }
 
 ];
 
 
 /* =========================================================
-   STATE
+   CORE STATE
+
+   `page`  - "idle"     : the dolphin idle screen (real start
+                          screen on a Flipper device)
+             "launcher" : the scrollable app list
+             <app name> : an open app
+   `nav`   - a stack of screens *within* the current app.
+             Each screen owns its own row data and knows
+             what OK / Back should do, so every app can go
+             several levels deep (menu -> list -> detail)
+             the way real Flipper apps do, and Back always
+             walks back out one level at a time.
    ========================================================= */
 
 let selected = 0;
-
-let page = "home";
-
+let page = "idle";
 let appSelected = 0;
+let nav = [];
 
-let terminalHistory = [
-    "FLIPPER ONE TERMINAL",
-    "Type 'help' for commands."
-];
+let batteryPct = 87;
+let idleTimer = null;
 
 
 /* =========================================================
@@ -696,526 +718,433 @@ const screen =
 
 
 /* =========================================================
-   HOME
+   NAV STACK HELPERS
    ========================================================= */
 
-function renderHome() {
+function currentScreen() {
 
-    page = "home";
+    return nav.length
+        ? nav[nav.length - 1]
+        : null;
+}
+
+function pushScreen(screenDef) {
+
+    /*
+       screenDef = { render, onSelect, onBack, cleanup }
+       onSelect(index) -> called when OK pressed on a row
+       onBack()        -> optional override for Back;
+                           return true if it handled Back
+                           itself (e.g. stopping an action
+                           instead of leaving the screen)
+    */
+
+    nav.push(screenDef);
+
+    appSelected = 0;
+
+    screenDef.render();
+}
+
+function replaceScreen(screenDef) {
+
+    leaveTopScreen();
+
+    nav[nav.length - 1] = screenDef;
+
+    appSelected = 0;
+
+    screenDef.render();
+}
+
+function leaveTopScreen() {
+
+    const top = currentScreen();
+
+    if (top && typeof top.cleanup === "function") {
+
+        top.cleanup();
+
+    }
+}
+
+
+/* =========================================================
+   IDLE SCREEN (dolphin home screen)
+   ========================================================= */
+
+function renderIdle() {
+
+    page = "idle";
+    nav = [];
 
     screen.innerHTML = `
 
         <div class="status">
+            <span>FLIPPER ONE</span>
+            <span>BAT ${batteryPct}%</span>
+        </div>
 
-            <span>
-                FLIPPER ONE
-            </span>
+        <div class="idle-screen">
 
-            <span>
-                BAT 87%
-            </span>
+            <div class="idle-clock" id="idleClock">${clockString()}</div>
+
+            <div class="idle-dolphin">🐬</div>
+
+            <div class="idle-waves">〜〜〜〜〜〜〜〜〜〜〜〜〜〜〜〜〜〜</div>
+
+            <div class="idle-caption">Press ▶ to open menu</div>
 
         </div>
 
+        <div class="info">
+            <div class="soft-buttons">${softButtons("Any button   ▶ Main Menu")}</div>
+        </div>
+    `;
+
+    clearInterval(idleTimer);
+
+    idleTimer = setInterval(() => {
+
+        const clock = document.getElementById("idleClock");
+
+        if (clock) {
+            clock.textContent = clockString();
+        }
+
+    }, 1000);
+
+}
+
+function clockString() {
+
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2, "0");
+    const m = String(now.getMinutes()).padStart(2, "0");
+
+    return `${h}:${m}`;
+
+}
+
+
+/* =========================================================
+   LAUNCHER (app list)
+   ========================================================= */
+
+function openLauncher() {
+
+    clearInterval(idleTimer);
+
+    selected = 0;
+
+    renderLauncher();
+
+}
+
+function renderLauncher() {
+
+    page = "launcher";
+    nav = [];
+
+    screen.innerHTML = `
+
+        <div class="status">
+            <span>FLIPPER ONE</span>
+            <span>BAT ${batteryPct}%</span>
+        </div>
 
         <div class="title">
             Applications
         </div>
 
+        <div class="menu-window" id="menuWindow">
 
-        <div
-            class="menu-window"
-            id="menuWindow"
-        >
-
-            <ul
-                class="menu"
-                id="menu"
-            >
+            <ul class="menu" id="menu">
 
                 ${
                     apps.map((app, index) => `
-
                     <li
                         data-index="${index}"
-                        class="${
-                            index === selected
-                                ? "selected"
-                                : ""
-                        }"
+                        class="${index === selected ? "selected" : ""}"
                     >
-
-                        ${app.icon}
-                        ${app.name}
-
+                        ${app.icon} ${app.name}
                     </li>
-
                     `).join("")
                 }
 
             </ul>
 
-
-            <div class="scrollbar">
-
-                <div
-                    class="scroll-thumb"
-                    id="scrollThumb">
-                </div>
-
-            </div>
-
         </div>
 
-
         <div class="info">
-
-            ▲ ▼ Navigate
-            &nbsp; ▶ Open
-
+            <div class="soft-buttons">${softButtons("▲ ▼ Navigate   ▶ Open   ◀ Idle")}</div>
         </div>
     `;
 
-
     requestAnimationFrame(() => {
 
-        const menuWindow =
-            document.getElementById("menuWindow");
-
-        if (menuWindow) {
-
-            menuWindow.addEventListener(
-                "scroll",
-                updateScrollbar
-            );
-
-        }
-
         scrollToSelected();
-
-        updateScrollbar();
 
     });
 }
 
 
 /* =========================================================
-   SCROLL TO SELECTED
+   SCROLL TO SELECTED (launcher)
    ========================================================= */
 
 function scrollToSelected() {
 
-    const menuWindow =
-        document.getElementById("menuWindow");
-
-    const item =
-        document.querySelector(
-            `.menu li[data-index="${selected}"]`
-        );
-
+    const menuWindow = document.getElementById("menuWindow");
+    const item = document.querySelector(`.menu li[data-index="${selected}"]`);
 
     if (!menuWindow || !item) {
         return;
     }
 
-
-    const itemTop =
-        item.offsetTop;
-
-    const itemBottom =
-        itemTop +
-        item.offsetHeight;
-
-    const visibleTop =
-        menuWindow.scrollTop;
-
-    const visibleBottom =
-        visibleTop +
-        menuWindow.clientHeight;
-
+    const itemTop = item.offsetTop;
+    const itemBottom = itemTop + item.offsetHeight;
+    const visibleTop = menuWindow.scrollTop;
+    const visibleBottom = visibleTop + menuWindow.clientHeight;
 
     if (itemTop < visibleTop) {
 
-        menuWindow.scrollTop =
-            itemTop;
+        menuWindow.scrollTop = itemTop;
 
-    }
-    else if (
-        itemBottom >
-        visibleBottom
-    ) {
+    } else if (itemBottom > visibleBottom) {
 
-        menuWindow.scrollTop =
-            itemBottom -
-            menuWindow.clientHeight;
+        menuWindow.scrollTop = itemBottom - menuWindow.clientHeight;
 
     }
 
-
-    updateScrollbar();
 }
 
 
 /* =========================================================
-   SCROLLBAR
-   ========================================================= */
-
-function updateScrollbar() {
-
-    const menuWindow =
-        document.getElementById("menuWindow");
-
-    const thumb =
-        document.getElementById("scrollThumb");
-
-
-    if (!menuWindow || !thumb) {
-        return;
-    }
-
-
-    const scrollHeight =
-        menuWindow.scrollHeight;
-
-    const visibleHeight =
-        menuWindow.clientHeight;
-
-    const maxScroll =
-        scrollHeight -
-        visibleHeight;
-
-
-    if (maxScroll <= 0) {
-
-        thumb.style.height = "0px";
-        thumb.style.top = "0px";
-
-        return;
-    }
-
-
-    const thumbHeight =
-        Math.max(
-            18,
-            (
-                visibleHeight /
-                scrollHeight
-            ) *
-            visibleHeight
-        );
-
-
-    const maxThumbTop =
-        visibleHeight -
-        thumbHeight;
-
-
-    const scrollPercent =
-        menuWindow.scrollTop /
-        maxScroll;
-
-
-    thumb.style.height =
-        `${thumbHeight}px`;
-
-    thumb.style.top =
-        `${scrollPercent * maxThumbTop}px`;
-}
-
-
-/* =========================================================
-   MOVE
+   MOVE  (▲ ▼)
    ========================================================= */
 
 function move(direction) {
 
-    if (page === "home") {
+    if (page === "idle") {
+
+        openLauncher();
+        return;
+
+    }
+
+    if (page === "launcher") {
 
         selected += direction;
 
+        if (selected < 0) selected = apps.length - 1;
+        if (selected >= apps.length) selected = 0;
 
-        if (selected < 0) {
-
-            selected =
-                apps.length - 1;
-
-        }
-
-
-        if (
-            selected >=
-            apps.length
-        ) {
-
-            selected = 0;
-
-        }
-
-
-        renderHome();
-
+        renderLauncher();
         return;
-    }
-
-
-    if (
-        page === "Wi-Fi" ||
-        page === "Network" ||
-        page === "Radio / SDR" ||
-        page === "Satellite" ||
-        page === "Settings" ||
-        page === "Tools" ||
-        page === "Files" ||
-        page === "Apps" ||
-        page === "Modules"
-    ) {
-
-        moveAppMenu(direction);
 
     }
+
+    moveAppMenu(direction);
 }
-
-
-/* =========================================================
-   APP MENU NAVIGATION
-   ========================================================= */
 
 function moveAppMenu(direction) {
 
-    const items =
-        document.querySelectorAll(
-            ".app-line"
-        );
-
+    const items = document.querySelectorAll(".app-line[data-row]");
 
     if (!items.length) {
         return;
     }
 
-
     appSelected += direction;
 
+    if (appSelected < 0) appSelected = items.length - 1;
+    if (appSelected >= items.length) appSelected = 0;
 
-    if (appSelected < 0) {
-
-        appSelected =
-            items.length - 1;
-
-    }
-
-
-    if (
-        appSelected >=
-        items.length
-    ) {
-
-        appSelected = 0;
-
-    }
-
-
-    items.forEach(
-        (item, index) => {
-
-            item.classList.toggle(
-                "selected",
-                index === appSelected
-            );
-
-        }
-    );
-
-
-    items[
-        appSelected
-    ].scrollIntoView({
-        block: "nearest"
+    items.forEach((item, index) => {
+        item.classList.toggle("selected", index === appSelected);
     });
+
+    items[appSelected].scrollIntoView({ block: "nearest" });
 }
 
 
 /* =========================================================
-   SELECT
+   SELECT (OK / ▶)
    ========================================================= */
 
 function select() {
 
-    if (page === "home") {
+    if (page === "idle") {
 
-        openApp(
-            apps[selected].name
-        );
-
+        openLauncher();
         return;
+
     }
 
+    if (page === "launcher") {
 
-    handleAppSelect();
+        openApp(apps[selected].name);
+        return;
+
+    }
+
+    const top = currentScreen();
+
+    if (top && typeof top.onSelect === "function") {
+
+        top.onSelect(appSelected);
+
+    }
 }
 
 
 /* =========================================================
-   OPEN APP
+   BACK (◀)
+   ========================================================= */
+
+function back() {
+
+    if (page === "idle") {
+        return;
+    }
+
+    if (page === "launcher") {
+
+        renderIdle();
+        return;
+
+    }
+
+    const top = currentScreen();
+
+    if (top && typeof top.onBack === "function") {
+
+        const handled = top.onBack();
+
+        if (handled) {
+            return;
+        }
+
+    }
+
+    leaveTopScreen();
+
+    nav.pop();
+
+    if (nav.length) {
+
+        appSelected = 0;
+        nav[nav.length - 1].render();
+
+    } else {
+
+        openLauncher();
+
+    }
+}
+
+
+/* =========================================================
+   OPEN APP  (from launcher)
    ========================================================= */
 
 function openApp(name) {
 
     page = name;
-
+    nav = [];
     appSelected = 0;
-
 
     switch (name) {
 
-        case "Radio / SDR":
-
-            renderRadio();
-
-            break;
-
-
-        case "Network":
-
-            renderNetwork();
-
-            break;
-
-
-        case "Wi-Fi":
-
-            renderWifi();
-
-            break;
-
-
-        case "Cellular":
-
-            renderCellular();
-
-            break;
-
-
-        case "Satellite":
-
-            renderSatellite();
-
-            break;
-
-
-        case "AI":
-
-            renderAI();
-
-            break;
-
-
-        case "Terminal":
-
-            renderTerminal();
-
-            break;
-
-
-        case "Tools":
-
-            renderTools();
-
-            break;
-
-
-        case "Files":
-
-            renderFiles();
-
-            break;
-
-
-        case "Settings":
-
-            renderSettings();
-
-            break;
-
-
-        case "Apps":
-
-            renderApps();
-
-            break;
-
-
-        case "Modules":
-
-            renderModules();
-
-            break;
+        case "Radio / SDR":  openRadio();     break;
+        case "Network":      openNetwork();   break;
+        case "Wi-Fi":        openWifi();      break;
+        case "Cellular":     openCellular();  break;
+        case "Satellite":    openSatellite(); break;
+        case "AI":           openAI();        break;
+        case "Terminal":     openTerminal();  break;
+        case "Tools":        openTools();     break;
+        case "Files":        openFiles();     break;
+        case "Settings":     openSettings();  break;
+        case "Apps":         openApps();      break;
+        case "Modules":      openModules();   break;
 
     }
 }
 
 
 /* =========================================================
-   GENERIC APP
+   GENERIC APP FRAME (menu-style screen)
    ========================================================= */
 
-function appFrame(
-    icon,
-    name,
-    rows,
-    info = "▲ ▼ Navigate   ▶ Select"
-) {
+function appFrame(icon, name, rows, info = "▲ ▼ Navigate   ▶ Select") {
 
     screen.innerHTML = `
 
         <div class="status">
-
-            <span>
-                ${icon} ${name}
-            </span>
-
-            <span>
-                BAT 87%
-            </span>
-
+            <span>${icon} ${name}</span>
+            <span>BAT ${batteryPct}%</span>
         </div>
-
 
         <div class="title">
             ${name}
         </div>
 
-
-        <div
-            class="app-content"
-            id="appContent"
-        >
+        <div class="app-content" id="appContent">
 
             ${
-                rows.map(
-                    (row, index) => `
-
-                    <div
-                        class="app-line ${
-                            index === 0
-                                ? "selected"
-                                : ""
-                        }"
-                    >
-                        ${row}
-                    </div>
-
-                `
-                ).join("")
+                rows.map((row, index) => `
+                <div
+                    data-row="${index}"
+                    class="app-line ${index === 0 ? "selected" : ""}"
+                >
+                    ${row}
+                </div>
+                `).join("")
             }
 
         </div>
 
-
         <div class="info">
-            ${info}
+            <div class="soft-buttons">
+                ${softButtons(info)}
+            </div>
         </div>
 
     `;
+
+}
+
+/* turns "▲ ▼ Navigate   ▶ Select" into separate button pills,
+   splitting on the existing double-space convention */
+function softButtons(info) {
+
+    return info
+        .split(/\s{2,}/)
+        .map(seg => `<span class="soft-btn">${seg.trim()}</span>`)
+        .join("");
+
+}
+
+function setRow(index, text) {
+
+    const row = document.querySelector(`.app-line[data-row="${index}"]`);
+
+    if (row) {
+        row.textContent = text;
+    }
+
+}
+
+/* simple read-only detail / info screen */
+function detailScreen(icon, name, lines) {
+
+    return {
+        render: () => appFrame(icon, name, lines, "◀ Back"),
+        onSelect: null
+    };
+
 }
 
 
@@ -1223,44 +1152,106 @@ function appFrame(
    RADIO / SDR
    ========================================================= */
 
-function renderRadio() {
+const radioFreqs = ["433.920 MHz", "868.000 MHz", "915.000 MHz", "2.400 GHz"];
 
-    appFrame(
-        "📡",
-        "Radio / SDR",
-        [
-            "▶ 433.920 MHz",
-            "   868.000 MHz",
-            "   915.000 MHz",
-            "   2.400 GHz",
+function openRadio() {
+
+    pushScreen({
+
+        render: () => appFrame("📡", "Radio / SDR", [
+            `▶ ${radioFreqs[0]}`,
+            `   ${radioFreqs[1]}`,
+            `   ${radioFreqs[2]}`,
+            `   ${radioFreqs[3]}`,
             "   Scan Spectrum",
             "   Signal Monitor"
-        ]
-    );
+        ]),
+
+        onSelect: (index) => {
+
+            if (index < 4) {
+
+                openFrequencyListen(radioFreqs[index]);
+
+            } else if (index === 4) {
+
+                openSpectrumScan();
+
+            } else {
+
+                openSignalMonitor();
+
+            }
+
+        }
+
+    });
+
 }
 
+function openFrequencyListen(freq) {
 
-function radioAction() {
+    let radioTimer = null;
 
-    const items =
-        document.querySelectorAll(
-            ".app-line"
-        );
+    pushScreen({
 
+        render: () => appFrame("📡", "Listening", [
+            `Freq: ${freq}`,
+            "RSSI: -- dBm",
+            "Mod:  OOK 650",
+            "",
+            "Capturing raw signal..."
+        ], "◀ Stop listening"),
 
-    if (appSelected === 4) {
+        onSelect: null,
 
-        items[4].textContent =
-            "▶ SCANNING...";
+        cleanup: () => clearInterval(radioTimer)
 
-        setTimeout(() => {
+    });
 
-            items[4].textContent =
-                "▶ Signal: -61 dBm";
+    radioTimer = setInterval(() => {
 
-        }, 1000);
+        const rssi = -40 - Math.floor(Math.random() * 50);
+        setRow(1, `RSSI: ${rssi} dBm`);
 
-    }
+    }, 500);
+
+}
+
+function openSpectrumScan() {
+
+    pushScreen({
+        render: () => appFrame("📡", "Scan Spectrum", ["Scanning 300-928 MHz...", "Please wait"], "◀ Cancel"),
+        onSelect: null
+    });
+
+    setTimeout(() => {
+
+        replaceScreen({
+            render: () => appFrame("📡", "Scan Results", [
+                "433.92 MHz   -58 dBm",
+                "868.00 MHz   -71 dBm",
+                "915.00 MHz   -66 dBm",
+                "312.10 MHz   -80 dBm"
+            ], "◀ Back"),
+            onSelect: null
+        });
+
+    }, 1400);
+
+}
+
+function openSignalMonitor() {
+
+    pushScreen({
+        render: () => appFrame("📡", "Signal Monitor", [
+            "▂▄▆█▆▄▂▁▂▃▅▇█▆▃▁",
+            "Peak: -44 dBm",
+            "Noise floor: -92 dBm"
+        ], "◀ Back"),
+        onSelect: null
+    });
+
 }
 
 
@@ -1268,65 +1259,181 @@ function radioAction() {
    NETWORK
    ========================================================= */
 
-function renderNetwork() {
+function openNetwork() {
 
-    appFrame(
-        "🌐",
-        "Network",
-        [
+    pushScreen({
+
+        render: () => appFrame("🌐", "Network", [
             "▶ Network Status",
             "   Scan Devices",
             "   Local Gateway",
             "   DNS Test",
             "   Ping Test",
             "   MAC Address"
-        ]
-    );
+        ]),
+
+        onSelect: (index) => {
+
+            switch (index) {
+
+                case 0:
+                    pushScreen(detailScreen("🌐", "Network Status", [
+                        "IP: 10.0.0.42",
+                        "Mask: 255.255.255.0",
+                        "Link: Ethernet, up",
+                        "Speed: 100 Mbps"
+                    ]));
+                    break;
+
+                case 1:
+                    runThenShow("🌐", "Scan Devices", "Scanning subnet...", [
+                        "10.0.0.1   router",
+                        "10.0.0.15  laptop",
+                        "10.0.0.23  phone",
+                        "10.0.0.31  printer"
+                    ]);
+                    break;
+
+                case 2:
+                    pushScreen(detailScreen("🌐", "Local Gateway", [
+                        "Gateway: 10.0.0.1",
+                        "DHCP: enabled",
+                        "Uptime: 4d 6h"
+                    ]));
+                    break;
+
+                case 3:
+                    runThenShow("🌐", "DNS Test", "Resolving...", [
+                        "example.com -> 93.184.216.34",
+                        "Lookup time: 24 ms"
+                    ]);
+                    break;
+
+                case 4:
+                    runThenShow("🌐", "Ping Test", "Pinging 10.0.0.1...", [
+                        "4 packets sent, 4 received",
+                        "min/avg/max = 1.2/2.4/4.1 ms"
+                    ]);
+                    break;
+
+                case 5:
+                    pushScreen(detailScreen("🌐", "MAC Address", [
+                        "80:1F:02:AB:3C:9E"
+                    ]));
+                    break;
+
+            }
+
+        }
+
+    });
+
+}
+
+/* shared helper: show a "running..." row then swap to results */
+function runThenShow(icon, title, runningText, resultRows) {
+
+    pushScreen({
+        render: () => appFrame(icon, title, [runningText], "◀ Cancel"),
+        onSelect: null
+    });
+
+    setTimeout(() => {
+
+        replaceScreen({
+            render: () => appFrame(icon, title, resultRows, "◀ Back"),
+            onSelect: null
+        });
+
+    }, 1100);
+
 }
 
 
 /* =========================================================
-   WIFI
+   WI-FI
    ========================================================= */
 
-function renderWifi() {
+const wifiNetworks = [
+    { ssid: "HomeNet",       rssi: -42, secured: true },
+    { ssid: "FLIPPER-LAB",   rssi: -57, secured: true },
+    { ssid: "Guest_WiFi",    rssi: -68, secured: false },
+    { ssid: "CoffeeShop",    rssi: -74, secured: false }
+];
 
-    appFrame(
-        "📶",
-        "Wi-Fi",
-        [
+function openWifi() {
+
+    pushScreen({
+
+        render: () => appFrame("📶", "Wi-Fi", [
             "▶ Scan Networks",
-            "   HomeNet       -42 dBm",
-            "   FLIPPER-LAB   -57 dBm",
-            "   Guest_WiFi    -68 dBm",
-            "   CoffeeShop    -74 dBm",
+            ...wifiNetworks.map(n => `   ${n.ssid.padEnd(13)} ${n.rssi} dBm`),
             "   Network Info"
-        ]
-    );
+        ]),
+
+        onSelect: (index) => {
+
+            if (index === 0) {
+
+                runThenShow("📶", "Scan Networks", "Scanning Wi-Fi...",
+                    wifiNetworks.map(n => `${n.ssid.padEnd(13)} ${n.rssi} dBm`));
+
+            } else if (index >= 1 && index <= wifiNetworks.length) {
+
+                openWifiDetail(wifiNetworks[index - 1]);
+
+            } else {
+
+                pushScreen(detailScreen("📶", "Network Info", [
+                    "Adapter: WFI-2400",
+                    "Chipset: ESP32-S3",
+                    "Mode: Station"
+                ]));
+
+            }
+
+        }
+
+    });
+
 }
 
+function openWifiDetail(net) {
 
-function wifiAction() {
+    pushScreen({
 
-    if (appSelected === 0) {
+        render: () => appFrame("📶", net.ssid, [
+            `Signal: ${net.rssi} dBm`,
+            `Security: ${net.secured ? "WPA2" : "Open"}`,
+            "",
+            "▶ Connect"
+        ], "▶ Connect   ◀ Back"),
 
-        const first =
-            document.querySelector(
-                ".app-line"
-            );
+        onSelect: () => {
 
-        first.textContent =
-            "▶ SCANNING Wi-Fi...";
+            replaceScreen({
+                render: () => appFrame("📶", net.ssid, [
+                    "Connecting..."
+                ], "◀ Back"),
+                onSelect: null
+            });
 
+            setTimeout(() => {
 
-        setTimeout(() => {
+                replaceScreen({
+                    render: () => appFrame("📶", net.ssid, [
+                        "Connected ✔",
+                        `IP: 10.0.0.${40 + Math.floor(Math.random() * 20)}`
+                    ], "◀ Back"),
+                    onSelect: null
+                });
 
-            first.textContent =
-                "▶ 7 NETWORKS FOUND";
+            }, 1000);
 
-        }, 1000);
+        }
 
-    }
+    });
+
 }
 
 
@@ -1334,20 +1441,44 @@ function wifiAction() {
    CELLULAR
    ========================================================= */
 
-function renderCellular() {
+function openCellular() {
 
-    appFrame(
-        "📱",
-        "Cellular",
-        [
+    pushScreen({
+
+        render: () => appFrame("📱", "Cellular", [
             "▶ Signal: 78%",
             "   Operator: FLIP",
             "   Network: LTE",
             "   Band: B12",
             "   Cell ID: 1842",
             "   Tower Info"
-        ]
-    );
+        ]),
+
+        onSelect: (index) => {
+
+            if (index === 5) {
+
+                pushScreen(detailScreen("📱", "Tower Info", [
+                    "Tower: FLIP-1842",
+                    "Distance: ~1.1 km",
+                    "RSRP: -91 dBm",
+                    "RSRQ: -9 dB"
+                ]));
+
+            } else {
+
+                pushScreen(detailScreen("📱", "Cellular Detail", [
+                    "No further detail",
+                    "available for this",
+                    "field."
+                ]));
+
+            }
+
+        }
+
+    });
+
 }
 
 
@@ -1355,20 +1486,84 @@ function renderCellular() {
    SATELLITE
    ========================================================= */
 
-function renderSatellite() {
+function openSatellite() {
 
-    appFrame(
-        "🛰️",
-        "Satellite",
-        [
+    pushScreen({
+
+        render: () => appFrame("🛰️", "Satellite", [
             "▶ Search Satellites",
-            "   GPS: Searching...",
-            "   SAT-01   42°",
-            "   SAT-02   67°",
-            "   SAT-03   81°",
+            "   GPS: idle",
             "   Signal Map"
-        ]
-    );
+        ]),
+
+        onSelect: (index) => {
+
+            if (index === 0) {
+
+                searchSatellites();
+
+            } else if (index === 2) {
+
+                pushScreen(detailScreen("🛰️", "Signal Map", [
+                    "  . * . . *",
+                    "  * . . * .",
+                    "  . . * . .",
+                    "N: 4 sats in view"
+                ]));
+
+            } else {
+
+                pushScreen(detailScreen("🛰️", "GPS", ["Idle. Run Search Satellites first."]));
+
+            }
+
+        }
+
+    });
+
+}
+
+function searchSatellites() {
+
+    pushScreen({
+        render: () => appFrame("🛰️", "Searching", ["Acquiring GPS fix..."], "◀ Cancel"),
+        onSelect: null
+    });
+
+    setTimeout(() => {
+
+        const sats = [
+            { id: "SAT-01", elev: 42 },
+            { id: "SAT-02", elev: 67 },
+            { id: "SAT-03", elev: 81 },
+            { id: "SAT-04", elev: 23 }
+        ];
+
+        replaceScreen({
+
+            render: () => appFrame("🛰️", "Satellites", [
+                "▶ Fix acquired ✔",
+                ...sats.map(s => `   ${s.id}   elev ${s.elev}°`)
+            ], "▶ Detail   ◀ Back"),
+
+            onSelect: (index) => {
+
+                if (index === 0) return;
+
+                const s = sats[index - 1];
+
+                pushScreen(detailScreen("🛰️", s.id, [
+                    `Elevation: ${s.elev}°`,
+                    `Azimuth: ${(index * 71) % 360}°`,
+                    "SNR: 38 dB-Hz"
+                ]));
+
+            }
+
+        });
+
+    }, 1500);
+
 }
 
 
@@ -1376,20 +1571,132 @@ function renderSatellite() {
    AI
    ========================================================= */
 
-function renderAI() {
+let aiLog = ["AI ASSISTANT", "Ask about the device or a signal."];
 
-    appFrame(
-        "🤖",
-        "AI",
-        [
+function openAI() {
+
+    pushScreen({
+
+        render: () => appFrame("🤖", "AI", [
             "▶ Ask AI",
             "   System Status",
             "   Analyze Signal",
             "   Explain Device",
             "   Generate Code",
             "   About AI"
-        ]
-    );
+        ]),
+
+        onSelect: (index) => {
+
+            switch (index) {
+
+                case 0: openAIChat(); break;
+
+                case 1:
+                    pushScreen(detailScreen("🤖", "System Status", [
+                        "Model: on-device",
+                        "Load: 12%",
+                        "Context: 4k tokens"
+                    ]));
+                    break;
+
+                case 2:
+                    runThenShow("🤖", "Analyze Signal", "Analyzing last capture...", [
+                        "Likely protocol: OOK",
+                        "Bit length: 24",
+                        "Confidence: 82%"
+                    ]);
+                    break;
+
+                case 3:
+                    pushScreen(detailScreen("🤖", "About Device", [
+                        "Flipper One is a",
+                        "multi-tool for radio,",
+                        "network and hardware",
+                        "exploration."
+                    ]));
+                    break;
+
+                case 4:
+                    pushScreen(detailScreen("🤖", "Generate Code", [
+                        "def read_rssi():",
+                        "    return radio.rssi()",
+                        "",
+                        "# snippet copied"
+                    ]));
+                    break;
+
+                case 5:
+                    pushScreen(detailScreen("🤖", "About AI", [
+                        "Local inference module",
+                        "for quick analysis of",
+                        "captured signals."
+                    ]));
+                    break;
+
+            }
+
+        }
+
+    });
+
+}
+
+function openAIChat() {
+
+    screen.innerHTML = `
+
+        <div class="status">
+            <span>🤖 AI CHAT</span>
+            <span>BAT ${batteryPct}%</span>
+        </div>
+
+        <div class="title">Ask AI</div>
+
+        <div class="terminal" id="terminalOutput">
+
+            ${aiLog.join("<br>")}
+            <br><span>&gt;</span>
+            <input id="aiInput" class="terminal-input" autocomplete="off" autofocus>
+
+        </div>
+
+        <div class="info"><div class="soft-buttons">${softButtons("Type a question   ◀ Back")}</div></div>
+    `;
+
+    nav.push({
+        render: openAIChat,
+        onSelect: null,
+        onBack: () => false
+    });
+
+    const input = document.getElementById("aiInput");
+    input.focus();
+
+    input.addEventListener("keydown", (e) => {
+
+        if (e.key === "Enter" && input.value.trim()) {
+
+            aiLog.push("> " + input.value);
+            aiLog.push(canned(input.value));
+            openAIChat();
+
+        }
+
+    });
+
+}
+
+function canned(q) {
+
+    const lower = q.toLowerCase();
+
+    if (lower.includes("signal")) return "That looks like an OOK burst near 433MHz.";
+    if (lower.includes("wifi")) return "Try Wi-Fi > Scan Networks to see nearby SSIDs.";
+    if (lower.includes("battery")) return `Battery is at ${batteryPct}%.`;
+
+    return "Noted. Try Radio, Wi-Fi or Network apps for live data.";
+
 }
 
 
@@ -1397,171 +1704,108 @@ function renderAI() {
    TERMINAL
    ========================================================= */
 
+let terminalHistory = [
+    "FLIPPER ONE TERMINAL",
+    "Type 'help' for commands."
+];
+
+function openTerminal() {
+
+    nav.push({
+        render: renderTerminal,
+        onSelect: null,
+        onBack: () => false
+    });
+
+    renderTerminal();
+
+}
+
 function renderTerminal() {
 
     screen.innerHTML = `
 
         <div class="status">
-
             <span>💻 TERMINAL</span>
-
-            <span>87%</span>
-
+            <span>${batteryPct}%</span>
         </div>
 
+        <div class="title">Console</div>
 
-        <div class="title">
-            Console
+        <div class="terminal" id="terminalOutput">
+            ${terminalHistory.join("<br>")}
+            <br><span>$</span>
+            <input id="terminalInput" class="terminal-input" autocomplete="off" autofocus>
         </div>
 
-
-        <div
-            class="terminal"
-            id="terminalOutput"
-        >
-
-            ${
-                terminalHistory.join("<br>")
-            }
-
-            <br>
-
-            <span>
-                $
-            </span>
-
-            <input
-                id="terminalInput"
-                class="terminal-input"
-                autocomplete="off"
-                autofocus
-            >
-
-        </div>
-
-
-        <div class="info">
-            Type commands &nbsp; ◀ Back
-        </div>
+        <div class="info"><div class="soft-buttons">${softButtons("Type commands   ◀ Back")}</div></div>
 
     `;
 
-
-    const input =
-        document.getElementById(
-            "terminalInput"
-        );
-
-
+    const input = document.getElementById("terminalInput");
     input.focus();
 
+    input.addEventListener("keydown", (event) => {
 
-    input.addEventListener(
-        "keydown",
-        function(event) {
-
-            if (
-                event.key === "Enter"
-            ) {
-
-                runCommand(
-                    input.value
-                );
-
-            }
-
+        if (event.key === "Enter") {
+            runCommand(input.value);
         }
-    );
+
+    });
+
 }
-
-
-/* =========================================================
-   TERMINAL COMMANDS
-   ========================================================= */
 
 function runCommand(command) {
 
-    const cmd =
-        command.trim().toLowerCase();
-
+    const cmd = command.trim().toLowerCase();
 
     if (!cmd) {
         return;
     }
 
-
-    terminalHistory.push(
-        "$ " + command
-    );
-
+    terminalHistory.push("$ " + command);
 
     switch (cmd) {
 
         case "help":
-
-            terminalHistory.push(
-                "help  status  scan  clear  reboot  about"
-            );
-
+            terminalHistory.push("help  status  scan  ls  battery  clear  reboot  about");
             break;
-
 
         case "status":
-
-            terminalHistory.push(
-                "FLIPPER ONE ONLINE | BAT 87%"
-            );
-
+            terminalHistory.push(`FLIPPER ONE ONLINE | BAT ${batteryPct}%`);
             break;
-
 
         case "scan":
-
-            terminalHistory.push(
-                "Scanning...",
-                "Found 6 devices."
-            );
-
+            terminalHistory.push("Scanning...", "Found 6 devices.");
             break;
 
+        case "ls":
+            terminalHistory.push("apps/  data/  logs/  config/  system/");
+            break;
+
+        case "battery":
+            terminalHistory.push(`Battery: ${batteryPct}%`);
+            break;
 
         case "about":
-
-            terminalHistory.push(
-                "Flipper One Simulator",
-                "Virtual hardware environment."
-            );
-
+            terminalHistory.push("Flipper One Simulator", "Virtual hardware environment.");
             break;
-
 
         case "reboot":
-
-            terminalHistory.push(
-                "Rebooting...",
-                "System ready."
-            );
-
+            terminalHistory.push("Rebooting...", "System ready.");
             break;
-
 
         case "clear":
-
             terminalHistory = [];
-
             break;
 
-
         default:
-
-            terminalHistory.push(
-                "Command not found: " + cmd
-            );
+            terminalHistory.push("Command not found: " + cmd);
 
     }
 
-
     renderTerminal();
+
 }
 
 
@@ -1569,20 +1813,276 @@ function runCommand(command) {
    TOOLS
    ========================================================= */
 
-function renderTools() {
+function openTools() {
 
-    appFrame(
-        "🔧",
-        "Tools",
-        [
+    pushScreen({
+
+        render: () => appFrame("🔧", "Tools", [
             "▶ Calculator",
             "   Stopwatch",
             "   Timer",
             "   Random Number",
             "   Device Test",
             "   System Info"
-        ]
-    );
+        ]),
+
+        onSelect: (index) => {
+
+            switch (index) {
+                case 0: openCalculator(); break;
+                case 1: openStopwatch(); break;
+                case 2: openCountdown(); break;
+                case 3: openRandom(); break;
+                case 4: openDeviceTest(); break;
+                case 5:
+                    pushScreen(detailScreen("🔧", "System Info", [
+                        "CPU: dual-core 240MHz",
+                        "RAM: 512 KB free: 210 KB",
+                        "Firmware: 1.4.2"
+                    ]));
+                    break;
+            }
+
+        }
+
+    });
+
+}
+
+let calcValue = "0";
+
+function openCalculator() {
+
+    nav.push({
+        render: renderCalculator,
+        onSelect: null,
+        onBack: () => false
+    });
+
+    calcValue = "0";
+    renderCalculator();
+
+}
+
+function renderCalculator() {
+
+    screen.innerHTML = `
+
+        <div class="status">
+            <span>🔧 CALCULATOR</span>
+            <span>${batteryPct}%</span>
+        </div>
+
+        <div class="title">Calculator</div>
+
+        <div class="terminal" id="calcOutput">
+            Result: ${calcValue}
+            <br><span>&gt;</span>
+            <input id="calcInput" class="terminal-input" placeholder="e.g. 12*(3+4)" autocomplete="off" autofocus>
+        </div>
+
+        <div class="info"><div class="soft-buttons">${softButtons("Enter expression, ⏎   ◀ Back")}</div></div>
+    `;
+
+    const input = document.getElementById("calcInput");
+    input.focus();
+
+    input.addEventListener("keydown", (e) => {
+
+        if (e.key === "Enter" && input.value.trim()) {
+
+            try {
+
+                const safe = input.value.replace(/[^0-9+\-*/().\s]/g, "");
+                const result = Function(`"use strict"; return (${safe})`)();
+                calcValue = String(result);
+
+            } catch (err) {
+
+                calcValue = "Error";
+
+            }
+
+            renderCalculator();
+
+        }
+
+    });
+
+}
+
+function openStopwatch() {
+
+    let seconds = 0;
+    let running = false;
+    let timer = null;
+
+    const fmt = (s) => {
+        const m = String(Math.floor(s / 60)).padStart(2, "0");
+        const r = String(s % 60).padStart(2, "0");
+        return `${m}:${r}`;
+    };
+
+    const render = () => {
+
+        appFrame("🔧", "Stopwatch", [
+            `Time: ${fmt(seconds)}`,
+            running ? "▶ Stop" : "▶ Start",
+            "   Reset"
+        ], "◀ Back");
+
+    };
+
+    pushScreen({
+
+        render,
+
+        onSelect: (index) => {
+
+            if (index === 0) return;
+
+            if (index === 1) {
+
+                running = !running;
+
+                if (running) {
+
+                    timer = setInterval(() => {
+                        seconds++;
+                        render();
+                    }, 1000);
+
+                } else {
+
+                    clearInterval(timer);
+
+                }
+
+                render();
+
+            } else if (index === 2) {
+
+                seconds = 0;
+                render();
+
+            }
+
+        },
+
+        cleanup: () => clearInterval(timer)
+
+    });
+
+}
+
+function openCountdown() {
+
+    let remaining = 60;
+    let timer = null;
+    let running = false;
+
+    const render = () => {
+
+        appFrame("🔧", "Timer", [
+            `Remaining: ${remaining}s`,
+            running ? "▶ Pause" : "▶ Start",
+            "   Reset to 60s"
+        ], "◀ Back");
+
+    };
+
+    pushScreen({
+
+        render,
+
+        onSelect: (index) => {
+
+            if (index === 1) {
+
+                running = !running;
+
+                if (running) {
+
+                    timer = setInterval(() => {
+
+                        remaining = Math.max(0, remaining - 1);
+                        render();
+
+                        if (remaining === 0) {
+                            clearInterval(timer);
+                            running = false;
+                            render();
+                        }
+
+                    }, 1000);
+
+                } else {
+
+                    clearInterval(timer);
+
+                }
+
+                render();
+
+            } else if (index === 2) {
+
+                clearInterval(timer);
+                running = false;
+                remaining = 60;
+                render();
+
+            }
+
+        },
+
+        cleanup: () => clearInterval(timer)
+
+    });
+
+}
+
+function openRandom() {
+
+    let value = Math.floor(Math.random() * 100) + 1;
+
+    pushScreen({
+
+        render: () => appFrame("🔧", "Random Number", [
+            `Value: ${value}`,
+            "▶ Roll Again"
+        ], "◀ Back"),
+
+        onSelect: () => {
+
+            value = Math.floor(Math.random() * 100) + 1;
+            setRow(0, `Value: ${value}`);
+
+        }
+
+    });
+
+}
+
+function openDeviceTest() {
+
+    const tests = ["Display", "Buttons", "Radio", "Wi-Fi chip", "Battery"];
+    const rows = tests.map(t => `${t}: pending`);
+
+    pushScreen({
+        render: () => appFrame("🔧", "Device Test", rows, "Running..."),
+        onSelect: null
+    });
+
+    tests.forEach((t, i) => {
+
+        setTimeout(() => {
+
+            setRow(i, `${t}: OK ✔`);
+
+        }, 500 * (i + 1));
+
+    });
+
 }
 
 
@@ -1590,20 +2090,91 @@ function renderTools() {
    FILES
    ========================================================= */
 
-function renderFiles() {
+const fileSystem = {
+    name: "/",
+    type: "dir",
+    children: [
+        { name: "apps", type: "dir", children: [
+            { name: "radio.fap", type: "file", content: "Flipper radio app binary." },
+            { name: "wifi.fap", type: "file", content: "Flipper Wi-Fi app binary." }
+        ]},
+        { name: "data", type: "dir", children: [
+            { name: "readings.log", type: "file", content: "12:04 RSSI -61dBm\n12:05 RSSI -58dBm" }
+        ]},
+        { name: "logs", type: "dir", children: [
+            { name: "system.log", type: "file", content: "[boot] system ready\n[net] link up" }
+        ]},
+        { name: "config", type: "dir", children: [
+            { name: "settings.cfg", type: "file", content: "brightness=80\nsound=on" }
+        ]},
+        { name: "system", type: "dir", children: [
+            { name: "firmware.bin", type: "file", content: "(binary firmware image)" }
+        ]}
+    ]
+};
 
-    appFrame(
-        "📂",
-        "Files",
-        [
-            "▶ /",
-            "   /apps",
-            "   /data",
-            "   /logs",
-            "   /config",
-            "   /system"
-        ]
-    );
+let filesPath = [fileSystem];
+
+function openFiles() {
+
+    filesPath = [fileSystem];
+    pushFileListing();
+
+}
+
+function pushFileListing() {
+
+    const dir = filesPath[filesPath.length - 1];
+
+    pushScreen({
+
+        render: () => appFrame("📂", pathLabel(), dir.children.map((c, i) =>
+            `${i === 0 ? "▶" : " "} ${c.type === "dir" ? "📁" : "📄"} ${c.name}`
+        )),
+
+        onSelect: (index) => {
+
+            const entry = dir.children[index];
+
+            if (!entry) return;
+
+            if (entry.type === "dir") {
+
+                filesPath.push(entry);
+                pushFileListing();
+
+            } else {
+
+                pushScreen(detailScreen("📂", entry.name, entry.content.split("\n")));
+
+            }
+
+        },
+
+        onBack: () => {
+
+            if (filesPath.length > 1) {
+
+                filesPath.pop();
+                nav.pop();
+                appSelected = 0;
+                nav[nav.length - 1].render();
+                return true;
+
+            }
+
+            return false;
+
+        }
+
+    });
+
+}
+
+function pathLabel() {
+
+    return "/" + filesPath.slice(1).map(d => d.name).join("/");
+
 }
 
 
@@ -1611,41 +2182,141 @@ function renderFiles() {
    SETTINGS
    ========================================================= */
 
-function renderSettings() {
+const settingsState = {
+    brightness: 80,
+    sound: true,
+    vibration: true,
+    theme: "Orange",
+    bluetooth: false
+};
 
-    appFrame(
-        "⚙️",
-        "Settings",
-        [
-            "▶ Brightness: 80%",
-            "   Sound: ON",
-            "   Vibration: ON",
-            "   Theme: Orange",
-            "   Bluetooth: OFF",
-            "   About Device"
-        ]
-    );
+const themes = ["Orange", "Blue", "Mono"];
+
+function openSettings() {
+
+    pushScreen({
+
+        render: renderSettingsScreen,
+
+        onSelect: (index) => {
+
+            switch (index) {
+
+                case 0:
+                    settingsState.brightness = (settingsState.brightness % 100) + 20;
+                    if (settingsState.brightness > 100) settingsState.brightness = 20;
+                    break;
+
+                case 1:
+                    settingsState.sound = !settingsState.sound;
+                    break;
+
+                case 2:
+                    settingsState.vibration = !settingsState.vibration;
+                    break;
+
+                case 3:
+                    settingsState.theme = themes[(themes.indexOf(settingsState.theme) + 1) % themes.length];
+                    break;
+
+                case 4:
+                    settingsState.bluetooth = !settingsState.bluetooth;
+                    break;
+
+                case 5:
+                    pushScreen(detailScreen("⚙️", "About Device", [
+                        "Flipper One",
+                        "Firmware: 1.4.2",
+                        "Serial: FL1-0042"
+                    ]));
+                    return;
+
+            }
+
+            renderSettingsScreen();
+            const items = document.querySelectorAll(".app-line[data-row]");
+            items.forEach((item, i) => item.classList.toggle("selected", i === appSelected));
+
+        }
+
+    });
+
+}
+
+function renderSettingsScreen() {
+
+    appFrame("⚙️", "Settings", [
+        `▶ Brightness: ${settingsState.brightness}%`,
+        `   Sound: ${settingsState.sound ? "ON" : "OFF"}`,
+        `   Vibration: ${settingsState.vibration ? "ON" : "OFF"}`,
+        `   Theme: ${settingsState.theme}`,
+        `   Bluetooth: ${settingsState.bluetooth ? "ON" : "OFF"}`,
+        "   About Device"
+    ]);
+
 }
 
 
 /* =========================================================
-   APPS
+   APPS (installed apps browser)
    ========================================================= */
 
-function renderApps() {
+const installedApps = ["RadioTool", "WifiScan", "NetPing", "SatFind", "CalcPlus"];
+let devMode = false;
 
-    appFrame(
-        "🧩",
-        "Apps",
-        [
-            "▶ Installed: 12",
+function openApps() {
+
+    pushScreen({
+
+        render: () => appFrame("🧩", "Apps", [
+            "▶ Installed: " + installedApps.length,
             "   Updates",
             "   App Manager",
             "   Storage",
             "   Permissions",
-            "   Developer Mode"
-        ]
-    );
+            `   Developer Mode: ${devMode ? "ON" : "OFF"}`
+        ]),
+
+        onSelect: (index) => {
+
+            switch (index) {
+
+                case 0:
+                case 2:
+                    pushScreen(detailScreen("🧩", "App Manager", installedApps));
+                    break;
+
+                case 1:
+                    pushScreen(detailScreen("🧩", "Updates", ["All apps up to date ✔"]));
+                    break;
+
+                case 3:
+                    pushScreen(detailScreen("🧩", "Storage", [
+                        "Used: 2.1 MB",
+                        "Free: 510 KB",
+                        "Total: 512 KB internal"
+                    ]));
+                    break;
+
+                case 4:
+                    pushScreen(detailScreen("🧩", "Permissions", [
+                        "Radio: allowed",
+                        "Network: allowed",
+                        "Files: allowed"
+                    ]));
+                    break;
+
+                case 5:
+                    devMode = !devMode;
+                    setRow(5, `Developer Mode: ${devMode ? "ON" : "OFF"}`);
+                    break;
+
+            }
+
+        }
+
+    });
+
 }
 
 
@@ -1653,106 +2324,45 @@ function renderApps() {
    MODULES
    ========================================================= */
 
-function renderModules() {
+const modules = [
+    { name: "GPIO Module",    detail: ["18 pins", "3.3V logic", "Status: connected"] },
+    { name: "Radio Module",   detail: ["Sub-1GHz + 2.4GHz", "Status: connected"] },
+    { name: "Sensor Module",  detail: ["Temp / Humidity", "Status: connected"] },
+    { name: "Display Module", detail: ["This LCD panel", "Status: connected"] },
+    { name: "USB Module",     detail: ["USB-C", "Status: connected"] },
+    { name: "Module Info",    detail: ["5 modules detected", "All nominal"] }
+];
 
-    appFrame(
-        "🔌",
-        "Modules",
-        [
-            "▶ GPIO Module",
-            "   Radio Module",
-            "   Sensor Module",
-            "   Display Module",
-            "   USB Module",
-            "   Module Info"
-        ]
-    );
-}
+function openModules() {
 
+    pushScreen({
 
-/* =========================================================
-   APP SELECT ACTION
-   ========================================================= */
+        render: () => appFrame("🔌", "Modules", modules.map((m, i) =>
+            `${i === 0 ? "▶" : " "} ${m.name}`
+        )),
 
-function handleAppSelect() {
+        onSelect: (index) => {
 
-    if (page === "Radio / SDR") {
+            const m = modules[index];
+            pushScreen(detailScreen("🔌", m.name, m.detail));
 
-        radioAction();
+        }
 
-        return;
-    }
-
-
-    if (page === "Wi-Fi") {
-
-        wifiAction();
-
-        return;
-    }
-
-
-    /*
-       Generic fake action
-    */
-
-    const items =
-        document.querySelectorAll(
-            ".app-line"
-        );
-
-
-    if (
-        items[appSelected]
-    ) {
-
-        const original =
-            items[appSelected]
-                .textContent;
-
-
-        items[appSelected]
-            .textContent =
-            "▶ Running...";
-
-
-        setTimeout(() => {
-
-            items[appSelected]
-                .textContent =
-                original
-                .replace("▶ ", "");
-
-        }, 900);
-
-    }
-}
-
-
-/* =========================================================
-   BACK
-   ========================================================= */
-
-function back() {
-
-    if (page !== "home") {
-
-        renderHome();
-
-    }
+    });
 
 }
 
 
 /* =========================================================
-   HOME
+   HOME BUTTON
    ========================================================= */
 
 function home() {
 
-    selected = 0;
+    leaveTopScreen();
 
-    renderHome();
+    selected = 0;
+    renderIdle();
 
 }
 
@@ -1761,109 +2371,58 @@ function home() {
    KEYBOARD
    ========================================================= */
 
-document.addEventListener(
-    "keydown",
-    function(event) {
+document.addEventListener("keydown", function (event) {
 
-        switch (event.key) {
+    const inField =
+        document.activeElement &&
+        (document.activeElement.id === "terminalInput" ||
+         document.activeElement.id === "aiInput" ||
+         document.activeElement.id === "calcInput");
 
-            case "ArrowUp":
+    switch (event.key) {
 
-                /*
-                   Don't steal terminal input arrows
-                */
+        case "ArrowUp":
+            if (inField) return;
+            event.preventDefault();
+            move(-1);
+            break;
 
-                if (
-                    document.activeElement &&
-                    document.activeElement.id ===
-                    "terminalInput"
-                ) {
-                    return;
-                }
+        case "ArrowDown":
+            if (inField) return;
+            event.preventDefault();
+            move(1);
+            break;
 
-                event.preventDefault();
+        case "ArrowRight":
+        case "Enter":
+            if (inField) return;
+            event.preventDefault();
+            select();
+            break;
 
-                move(-1);
+        case "ArrowLeft":
+        case "Escape":
+        case "Backspace":
+            if (inField) return;
+            event.preventDefault();
+            back();
+            break;
 
-                break;
-
-
-            case "ArrowDown":
-
-                if (
-                    document.activeElement &&
-                    document.activeElement.id ===
-                    "terminalInput"
-                ) {
-                    return;
-                }
-
-                event.preventDefault();
-
-                move(1);
-
-                break;
-
-
-            case "ArrowRight":
-
-            case "Enter":
-
-                if (
-                    document.activeElement &&
-                    document.activeElement.id ===
-                    "terminalInput"
-                ) {
-                    return;
-                }
-
-                event.preventDefault();
-
-                select();
-
-                break;
-
-
-            case "ArrowLeft":
-
-            case "Escape":
-
-            case "Backspace":
-
-                if (
-                    document.activeElement &&
-                    document.activeElement.id ===
-                    "terminalInput"
-                ) {
-                    return;
-                }
-
-                event.preventDefault();
-
-                back();
-
-                break;
-
-
-            case "Home":
-
-                event.preventDefault();
-
-                home();
-
-                break;
-
-        }
+        case "Home":
+            event.preventDefault();
+            home();
+            break;
 
     }
-);
+
+});
 
 
 /* =========================================================
    START
    ========================================================= */
 
-renderHome();
+renderIdle();
 
 </script>
 
