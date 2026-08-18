@@ -669,18 +669,12 @@ body {
 
 const apps = [
 
-    { icon: "📡", name: "Radio / SDR" },
-    { icon: "🌐", name: "Network" },
-    { icon: "📶", name: "Wi-Fi" },
-    { icon: "📱", name: "Cellular" },
-    { icon: "🛰️", name: "Satellite" },
-    { icon: "🤖", name: "AI" },
-    { icon: "💻", name: "Terminal" },
-    { icon: "🔧", name: "Tools" },
-    { icon: "📂", name: "Files" },
-    { icon: "⚙️", name: "Settings" },
+    { icon: "🖥️", name: "Computer" },
     { icon: "🧩", name: "Apps" },
-    { icon: "🔌", name: "Modules" }
+    { icon: "🌐", name: "Network" },
+    { icon: "🧪", name: "Testing" },
+    { icon: "⚙️", name: "Settings" },
+    { icon: "💾", name: "Boot Profiles" }
 
 ];
 
@@ -1057,20 +1051,299 @@ function openApp(name) {
 
     switch (name) {
 
-        case "Radio / SDR":  openRadio();     break;
-        case "Network":      openNetwork();   break;
-        case "Wi-Fi":        openWifi();      break;
-        case "Cellular":     openCellular();  break;
-        case "Satellite":    openSatellite(); break;
-        case "AI":           openAI();        break;
-        case "Terminal":     openTerminal();  break;
-        case "Tools":        openTools();     break;
-        case "Files":        openFiles();     break;
-        case "Settings":     openSettings();  break;
-        case "Apps":         openApps();      break;
-        case "Modules":      openModules();   break;
+        case "Computer":      openComputer();       break;
+        case "Apps":          openAppsCategory();   break;
+        case "Network":       openNetworkCategory();break;
+        case "Testing":       openTesting();        break;
+        case "Settings":      openSettings();       break;
+        case "Boot Profiles": openBootProfiles();   break;
 
     }
+}
+
+
+/* =========================================================
+   TOP-LEVEL CATEGORIES
+
+   Each of these is a submenu that routes into the actual
+   tool screens defined further down (Radio, Wi-Fi, Terminal,
+   Files, etc) — same behavior as before, just organized the
+   way the real Flipper One groups them.
+   ========================================================= */
+
+function openComputer() {
+
+    pushScreen({
+
+        render: () => appFrame("🖥️", "Computer", [
+            "▶ Terminal",
+            "   Files",
+            "   System Info",
+            "   Storage",
+            "   Modules",
+            "   Launch Desktop Mode",
+            "   Connect External Display",
+            "   TV Mode",
+            "   Remote Desktop (VNC)"
+        ]),
+
+        onSelect: (index) => {
+
+            switch (index) {
+
+                case 0: openTerminal(); break;
+                case 1: openFiles(); break;
+
+                case 2:
+                    pushScreen(detailScreen("🖥️", "System Info", [
+                        "CPU: RK3576 quad-core",
+                        "RAM: 4 GB, 2.1 GB free",
+                        "OS: Flipper OS (Debian)",
+                        "Uptime: 2h 14m"
+                    ]));
+                    break;
+
+                case 3:
+                    pushScreen(detailScreen("🖥️", "Storage", [
+                        "Root: 12 GB / 64 GB used",
+                        "SD card: not inserted"
+                    ]));
+                    break;
+
+                case 4: openModules(); break;
+
+                case 5:
+                    runThenShow("🖥️", "Desktop Mode", "Starting WebKit desktop...", [
+                        "Desktop session active",
+                        "Resolution: 1920x1080"
+                    ]);
+                    break;
+
+                case 6:
+                    pushScreen(detailScreen("🖥️", "External Display", [
+                        "No display detected",
+                        "Connect via USB-C or HDMI"
+                    ]));
+                    break;
+
+                case 7:
+                    runThenShow("🖥️", "TV Mode", "Switching output...", [
+                        "TV Mode active",
+                        "Output: HDMI 1080p60"
+                    ]);
+                    break;
+
+                case 8:
+                    pushScreen(detailScreen("🖥️", "Remote Desktop", [
+                        "VNC server: stopped",
+                        "Enable in Settings"
+                    ]));
+                    break;
+
+            }
+
+        }
+
+    });
+
+}
+
+function openAppsCategory() {
+
+    pushScreen({
+
+        render: () => appFrame("🧩", "Apps", [
+            "▶ AI",
+            "   Calculator",
+            "   Stopwatch",
+            "   Timer",
+            "   Random Number",
+            "   App Manager"
+        ]),
+
+        onSelect: (index) => {
+
+            switch (index) {
+
+                case 0: openAI(); break;
+                case 1: openCalculator(); break;
+                case 2: openStopwatch(); break;
+                case 3: openCountdown(); break;
+                case 4: openRandom(); break;
+                case 5: openApps(); break;
+
+            }
+
+        }
+
+    });
+
+}
+
+function openNetworkCategory() {
+
+    pushScreen({
+
+        render: () => appFrame("🌐", "Network", [
+            "▶ Wi-Fi",
+            "   Cellular",
+            "   Radio / SDR",
+            "   Satellite",
+            "   Network Tools"
+        ]),
+
+        onSelect: (index) => {
+
+            switch (index) {
+
+                case 0: openWifi(); break;
+                case 1: openCellular(); break;
+                case 2: openRadio(); break;
+                case 3: openSatellite(); break;
+                case 4: openNetwork(); break;
+
+            }
+
+        }
+
+    });
+
+}
+
+function openTesting() {
+
+    pushScreen({
+
+        render: () => appFrame("🧪", "Testing", [
+            "▶ Device Test",
+            "   Network Test",
+            "   Module Test",
+            "   Test Reports"
+        ]),
+
+        onSelect: (index) => {
+
+            switch (index) {
+
+                case 0: openDeviceTest(); break;
+
+                case 1:
+                    runThenShow("🧪", "Network Test", "Running checks...", [
+                        "Wi-Fi:     PASS",
+                        "Ethernet:  PASS",
+                        "LTE:       PASS"
+                    ]);
+                    break;
+
+                case 2: openModules(); break;
+
+                case 3:
+                    pushScreen(detailScreen("🧪", "Test Reports", [
+                        "Last run: today",
+                        "3 / 3 suites passed"
+                    ]));
+                    break;
+
+            }
+
+        }
+
+    });
+
+}
+
+const bootProfiles = [
+
+    { name: "Network Router",   icon: "📡", lastUsed: "2 days ago",  user: false, active: true },
+    { name: "Radio Lab",        icon: "📻", lastUsed: "5 days ago",  user: false, active: false },
+    { name: "Desktop Computer", icon: "🖥️", lastUsed: "Today",       user: false, active: false },
+    { name: "TV Media Box",     icon: "📺", lastUsed: "3 weeks ago", user: false, active: false },
+    { name: "[MyTravelRouter]", icon: "📡", lastUsed: "1 week ago",  user: true,  active: false }
+
+];
+
+function openBootProfiles() {
+
+    pushScreen({
+
+        render: () => appFrame("💾", "Boot Profiles", bootProfiles.map((p, i) =>
+            `${i === 0 ? "▶" : " "} ${p.icon} ${p.name}${p.active ? "  (active)" : ""}`
+        ), "▶ Manage   ◀ Back"),
+
+        onSelect: (index) => openProfileDetail(bootProfiles[index])
+
+    });
+
+}
+
+function openProfileDetail(profile) {
+
+    const actions = ["▶ Boot", "   Clone", "   Reset to Default"];
+
+    if (profile.user) {
+        actions.push("   Delete");
+    }
+
+    pushScreen({
+
+        render: () => appFrame(profile.icon, profile.name, [
+            ...actions,
+            "",
+            `Last used: ${profile.lastUsed}`
+        ], "▶ Select   ◀ Back"),
+
+        onSelect: (index) => {
+
+            if (index === 0) {
+
+                runThenShow(profile.icon, profile.name, "Loading kernel & overlay...", [
+                    "Mounting root filesystem",
+                    `Profile "${profile.name}" ready`,
+                    "Reboot to switch ✔"
+                ]);
+
+            } else if (index === 1) {
+
+                const cloneName = `[${profile.name.replace(/[\[\]]/g, "")}-copy]`;
+
+                bootProfiles.push({
+                    name: cloneName,
+                    icon: profile.icon,
+                    lastUsed: "just now",
+                    user: true,
+                    active: false
+                });
+
+                pushScreen(detailScreen(profile.icon, "Clone", [
+                    "Cloned as a user profile:",
+                    cloneName,
+                    "",
+                    "Find it in Boot Profiles"
+                ]));
+
+            } else if (index === 2) {
+
+                runThenShow(profile.icon, profile.name, "Reverting overlay to default...", [
+                    "User changes discarded",
+                    "Profile reset ✔"
+                ]);
+
+            } else if (index === 3 && profile.user) {
+
+                const idx = bootProfiles.indexOf(profile);
+
+                if (idx !== -1) {
+                    bootProfiles.splice(idx, 1);
+                }
+
+                back();
+
+            }
+
+        }
+
+    });
+
 }
 
 
@@ -1808,46 +2081,6 @@ function runCommand(command) {
 
 }
 
-
-/* =========================================================
-   TOOLS
-   ========================================================= */
-
-function openTools() {
-
-    pushScreen({
-
-        render: () => appFrame("🔧", "Tools", [
-            "▶ Calculator",
-            "   Stopwatch",
-            "   Timer",
-            "   Random Number",
-            "   Device Test",
-            "   System Info"
-        ]),
-
-        onSelect: (index) => {
-
-            switch (index) {
-                case 0: openCalculator(); break;
-                case 1: openStopwatch(); break;
-                case 2: openCountdown(); break;
-                case 3: openRandom(); break;
-                case 4: openDeviceTest(); break;
-                case 5:
-                    pushScreen(detailScreen("🔧", "System Info", [
-                        "CPU: dual-core 240MHz",
-                        "RAM: 512 KB free: 210 KB",
-                        "Firmware: 1.4.2"
-                    ]));
-                    break;
-            }
-
-        }
-
-    });
-
-}
 
 let calcValue = "0";
 
