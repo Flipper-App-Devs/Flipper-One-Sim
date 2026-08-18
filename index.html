@@ -669,12 +669,12 @@ body {
 
 const apps = [
 
-    { icon: "🖥️", name: "Computer" },
-    { icon: "🧩", name: "Apps" },
-    { icon: "🌐", name: "Network" },
-    { icon: "🧪", name: "Testing" },
-    { icon: "⚙️", name: "Settings" },
-    { icon: "💾", name: "Boot Profiles" }
+    { icon: "▣", name: "Computer" },
+    { icon: "▦", name: "Apps" },
+    { icon: "◎", name: "Network" },
+    { icon: "◈", name: "Testing" },
+    { icon: "⚙", name: "Settings" },
+    { icon: "▤", name: "Boot Profiles" }
 
 ];
 
@@ -1075,7 +1075,7 @@ function openComputer() {
 
     pushScreen({
 
-        render: () => appFrame("🖥️", "Computer", [
+        render: () => appFrame("▣", "Computer", [
             "▶ Terminal",
             "   Files",
             "   System Info",
@@ -1095,7 +1095,7 @@ function openComputer() {
                 case 1: openFiles(); break;
 
                 case 2:
-                    pushScreen(detailScreen("🖥️", "System Info", [
+                    pushScreen(detailScreen("▣", "System Info", [
                         "CPU: RK3576 quad-core",
                         "RAM: 4 GB, 2.1 GB free",
                         "OS: Flipper OS (Debian)",
@@ -1104,7 +1104,7 @@ function openComputer() {
                     break;
 
                 case 3:
-                    pushScreen(detailScreen("🖥️", "Storage", [
+                    pushScreen(detailScreen("▣", "Storage", [
                         "Root: 12 GB / 64 GB used",
                         "SD card: not inserted"
                     ]));
@@ -1113,28 +1113,28 @@ function openComputer() {
                 case 4: openModules(); break;
 
                 case 5:
-                    runThenShow("🖥️", "Desktop Mode", "Starting WebKit desktop...", [
+                    runThenShow("▣", "Desktop Mode", "Starting WebKit desktop...", [
                         "Desktop session active",
                         "Resolution: 1920x1080"
                     ]);
                     break;
 
                 case 6:
-                    pushScreen(detailScreen("🖥️", "External Display", [
+                    pushScreen(detailScreen("▣", "External Display", [
                         "No display detected",
                         "Connect via USB-C or HDMI"
                     ]));
                     break;
 
                 case 7:
-                    runThenShow("🖥️", "TV Mode", "Switching output...", [
+                    runThenShow("▣", "TV Mode", "Switching output...", [
                         "TV Mode active",
                         "Output: HDMI 1080p60"
                     ]);
                     break;
 
                 case 8:
-                    pushScreen(detailScreen("🖥️", "Remote Desktop", [
+                    pushScreen(detailScreen("▣", "Remote Desktop", [
                         "VNC server: stopped",
                         "Enable in Settings"
                     ]));
@@ -1152,7 +1152,7 @@ function openAppsCategory() {
 
     pushScreen({
 
-        render: () => appFrame("🧩", "Apps", [
+        render: () => appFrame("▦", "Apps", [
             "▶ AI",
             "   Calculator",
             "   Stopwatch",
@@ -1184,7 +1184,7 @@ function openNetworkCategory() {
 
     pushScreen({
 
-        render: () => appFrame("🌐", "Network", [
+        render: () => appFrame("◎", "Network", [
             "▶ Wi-Fi",
             "   Cellular",
             "   Radio / SDR",
@@ -1214,7 +1214,7 @@ function openTesting() {
 
     pushScreen({
 
-        render: () => appFrame("🧪", "Testing", [
+        render: () => appFrame("◈", "Testing", [
             "▶ Device Test",
             "   Network Test",
             "   Module Test",
@@ -1228,7 +1228,7 @@ function openTesting() {
                 case 0: openDeviceTest(); break;
 
                 case 1:
-                    runThenShow("🧪", "Network Test", "Running checks...", [
+                    runThenShow("◈", "Network Test", "Running checks...", [
                         "Wi-Fi:     PASS",
                         "Ethernet:  PASS",
                         "LTE:       PASS"
@@ -1238,7 +1238,7 @@ function openTesting() {
                 case 2: openModules(); break;
 
                 case 3:
-                    pushScreen(detailScreen("🧪", "Test Reports", [
+                    pushScreen(detailScreen("◈", "Test Reports", [
                         "Last run: today",
                         "3 / 3 suites passed"
                     ]));
@@ -1254,11 +1254,11 @@ function openTesting() {
 
 const bootProfiles = [
 
-    { name: "Network Router",   icon: "📡", lastUsed: "2 days ago",  user: false, active: true },
-    { name: "Radio Lab",        icon: "📻", lastUsed: "5 days ago",  user: false, active: false },
-    { name: "Desktop Computer", icon: "🖥️", lastUsed: "Today",       user: false, active: false },
-    { name: "TV Media Box",     icon: "📺", lastUsed: "3 weeks ago", user: false, active: false },
-    { name: "[MyTravelRouter]", icon: "📡", lastUsed: "1 week ago",  user: true,  active: false }
+    { name: "Network Router",   icon: "◎", lastUsed: "2 days ago",  user: false, active: true },
+    { name: "Radio Lab",        icon: "⌁", lastUsed: "5 days ago",  user: false, active: false },
+    { name: "Desktop Computer", icon: "▣", lastUsed: "Today",       user: false, active: false },
+    { name: "TV Media Box",     icon: "▬", lastUsed: "3 weeks ago", user: false, active: false },
+    { name: "[MyTravelRouter]", icon: "◎", lastUsed: "1 week ago",  user: true,  active: false }
 
 ];
 
@@ -1266,7 +1266,7 @@ function openBootProfiles() {
 
     pushScreen({
 
-        render: () => appFrame("💾", "Boot Profiles", bootProfiles.map((p, i) =>
+        render: () => appFrame("▤", "Boot Profiles", bootProfiles.map((p, i) =>
             `${i === 0 ? "▶" : " "} ${p.icon} ${p.name}${p.active ? "  (active)" : ""}`
         ), "▶ Manage   ◀ Back"),
 
@@ -1431,7 +1431,7 @@ function openRadio() {
 
     pushScreen({
 
-        render: () => appFrame("📡", "Radio / SDR", [
+        render: () => appFrame("⌁", "Radio / SDR", [
             `▶ ${radioFreqs[0]}`,
             `   ${radioFreqs[1]}`,
             `   ${radioFreqs[2]}`,
@@ -1468,7 +1468,7 @@ function openFrequencyListen(freq) {
 
     pushScreen({
 
-        render: () => appFrame("📡", "Listening", [
+        render: () => appFrame("⌁", "Listening", [
             `Freq: ${freq}`,
             "RSSI: -- dBm",
             "Mod:  OOK 650",
@@ -1494,14 +1494,14 @@ function openFrequencyListen(freq) {
 function openSpectrumScan() {
 
     pushScreen({
-        render: () => appFrame("📡", "Scan Spectrum", ["Scanning 300-928 MHz...", "Please wait"], "◀ Cancel"),
+        render: () => appFrame("⌁", "Scan Spectrum", ["Scanning 300-928 MHz...", "Please wait"], "◀ Cancel"),
         onSelect: null
     });
 
     setTimeout(() => {
 
         replaceScreen({
-            render: () => appFrame("📡", "Scan Results", [
+            render: () => appFrame("⌁", "Scan Results", [
                 "433.92 MHz   -58 dBm",
                 "868.00 MHz   -71 dBm",
                 "915.00 MHz   -66 dBm",
@@ -1517,7 +1517,7 @@ function openSpectrumScan() {
 function openSignalMonitor() {
 
     pushScreen({
-        render: () => appFrame("📡", "Signal Monitor", [
+        render: () => appFrame("⌁", "Signal Monitor", [
             "▂▄▆█▆▄▂▁▂▃▅▇█▆▃▁",
             "Peak: -44 dBm",
             "Noise floor: -92 dBm"
@@ -1536,7 +1536,7 @@ function openNetwork() {
 
     pushScreen({
 
-        render: () => appFrame("🌐", "Network", [
+        render: () => appFrame("◎", "Network", [
             "▶ Network Status",
             "   Scan Devices",
             "   Local Gateway",
@@ -1550,7 +1550,7 @@ function openNetwork() {
             switch (index) {
 
                 case 0:
-                    pushScreen(detailScreen("🌐", "Network Status", [
+                    pushScreen(detailScreen("◎", "Network Status", [
                         "IP: 10.0.0.42",
                         "Mask: 255.255.255.0",
                         "Link: Ethernet, up",
@@ -1559,7 +1559,7 @@ function openNetwork() {
                     break;
 
                 case 1:
-                    runThenShow("🌐", "Scan Devices", "Scanning subnet...", [
+                    runThenShow("◎", "Scan Devices", "Scanning subnet...", [
                         "10.0.0.1   router",
                         "10.0.0.15  laptop",
                         "10.0.0.23  phone",
@@ -1568,7 +1568,7 @@ function openNetwork() {
                     break;
 
                 case 2:
-                    pushScreen(detailScreen("🌐", "Local Gateway", [
+                    pushScreen(detailScreen("◎", "Local Gateway", [
                         "Gateway: 10.0.0.1",
                         "DHCP: enabled",
                         "Uptime: 4d 6h"
@@ -1576,21 +1576,21 @@ function openNetwork() {
                     break;
 
                 case 3:
-                    runThenShow("🌐", "DNS Test", "Resolving...", [
+                    runThenShow("◎", "DNS Test", "Resolving...", [
                         "example.com -> 93.184.216.34",
                         "Lookup time: 24 ms"
                     ]);
                     break;
 
                 case 4:
-                    runThenShow("🌐", "Ping Test", "Pinging 10.0.0.1...", [
+                    runThenShow("◎", "Ping Test", "Pinging 10.0.0.1...", [
                         "4 packets sent, 4 received",
                         "min/avg/max = 1.2/2.4/4.1 ms"
                     ]);
                     break;
 
                 case 5:
-                    pushScreen(detailScreen("🌐", "MAC Address", [
+                    pushScreen(detailScreen("◎", "MAC Address", [
                         "80:1F:02:AB:3C:9E"
                     ]));
                     break;
@@ -1638,7 +1638,7 @@ function openWifi() {
 
     pushScreen({
 
-        render: () => appFrame("📶", "Wi-Fi", [
+        render: () => appFrame("◉", "Wi-Fi", [
             "▶ Scan Networks",
             ...wifiNetworks.map(n => `   ${n.ssid.padEnd(13)} ${n.rssi} dBm`),
             "   Network Info"
@@ -1648,7 +1648,7 @@ function openWifi() {
 
             if (index === 0) {
 
-                runThenShow("📶", "Scan Networks", "Scanning Wi-Fi...",
+                runThenShow("◉", "Scan Networks", "Scanning Wi-Fi...",
                     wifiNetworks.map(n => `${n.ssid.padEnd(13)} ${n.rssi} dBm`));
 
             } else if (index >= 1 && index <= wifiNetworks.length) {
@@ -1657,7 +1657,7 @@ function openWifi() {
 
             } else {
 
-                pushScreen(detailScreen("📶", "Network Info", [
+                pushScreen(detailScreen("◉", "Network Info", [
                     "Adapter: WFI-2400",
                     "Chipset: ESP32-S3",
                     "Mode: Station"
@@ -1675,7 +1675,7 @@ function openWifiDetail(net) {
 
     pushScreen({
 
-        render: () => appFrame("📶", net.ssid, [
+        render: () => appFrame("◉", net.ssid, [
             `Signal: ${net.rssi} dBm`,
             `Security: ${net.secured ? "WPA2" : "Open"}`,
             "",
@@ -1685,7 +1685,7 @@ function openWifiDetail(net) {
         onSelect: () => {
 
             replaceScreen({
-                render: () => appFrame("📶", net.ssid, [
+                render: () => appFrame("◉", net.ssid, [
                     "Connecting..."
                 ], "◀ Back"),
                 onSelect: null
@@ -1694,7 +1694,7 @@ function openWifiDetail(net) {
             setTimeout(() => {
 
                 replaceScreen({
-                    render: () => appFrame("📶", net.ssid, [
+                    render: () => appFrame("◉", net.ssid, [
                         "Connected ✔",
                         `IP: 10.0.0.${40 + Math.floor(Math.random() * 20)}`
                     ], "◀ Back"),
@@ -1718,7 +1718,7 @@ function openCellular() {
 
     pushScreen({
 
-        render: () => appFrame("📱", "Cellular", [
+        render: () => appFrame("▯", "Cellular", [
             "▶ Signal: 78%",
             "   Operator: FLIP",
             "   Network: LTE",
@@ -1731,7 +1731,7 @@ function openCellular() {
 
             if (index === 5) {
 
-                pushScreen(detailScreen("📱", "Tower Info", [
+                pushScreen(detailScreen("▯", "Tower Info", [
                     "Tower: FLIP-1842",
                     "Distance: ~1.1 km",
                     "RSRP: -91 dBm",
@@ -1740,7 +1740,7 @@ function openCellular() {
 
             } else {
 
-                pushScreen(detailScreen("📱", "Cellular Detail", [
+                pushScreen(detailScreen("▯", "Cellular Detail", [
                     "No further detail",
                     "available for this",
                     "field."
@@ -1763,7 +1763,7 @@ function openSatellite() {
 
     pushScreen({
 
-        render: () => appFrame("🛰️", "Satellite", [
+        render: () => appFrame("✦", "Satellite", [
             "▶ Search Satellites",
             "   GPS: idle",
             "   Signal Map"
@@ -1777,7 +1777,7 @@ function openSatellite() {
 
             } else if (index === 2) {
 
-                pushScreen(detailScreen("🛰️", "Signal Map", [
+                pushScreen(detailScreen("✦", "Signal Map", [
                     "  . * . . *",
                     "  * . . * .",
                     "  . . * . .",
@@ -1786,7 +1786,7 @@ function openSatellite() {
 
             } else {
 
-                pushScreen(detailScreen("🛰️", "GPS", ["Idle. Run Search Satellites first."]));
+                pushScreen(detailScreen("✦", "GPS", ["Idle. Run Search Satellites first."]));
 
             }
 
@@ -1799,7 +1799,7 @@ function openSatellite() {
 function searchSatellites() {
 
     pushScreen({
-        render: () => appFrame("🛰️", "Searching", ["Acquiring GPS fix..."], "◀ Cancel"),
+        render: () => appFrame("✦", "Searching", ["Acquiring GPS fix..."], "◀ Cancel"),
         onSelect: null
     });
 
@@ -1814,7 +1814,7 @@ function searchSatellites() {
 
         replaceScreen({
 
-            render: () => appFrame("🛰️", "Satellites", [
+            render: () => appFrame("✦", "Satellites", [
                 "▶ Fix acquired ✔",
                 ...sats.map(s => `   ${s.id}   elev ${s.elev}°`)
             ], "▶ Detail   ◀ Back"),
@@ -1825,7 +1825,7 @@ function searchSatellites() {
 
                 const s = sats[index - 1];
 
-                pushScreen(detailScreen("🛰️", s.id, [
+                pushScreen(detailScreen("✦", s.id, [
                     `Elevation: ${s.elev}°`,
                     `Azimuth: ${(index * 71) % 360}°`,
                     "SNR: 38 dB-Hz"
@@ -1850,7 +1850,7 @@ function openAI() {
 
     pushScreen({
 
-        render: () => appFrame("🤖", "AI", [
+        render: () => appFrame("Σ", "AI", [
             "▶ Ask AI",
             "   System Status",
             "   Analyze Signal",
@@ -1866,7 +1866,7 @@ function openAI() {
                 case 0: openAIChat(); break;
 
                 case 1:
-                    pushScreen(detailScreen("🤖", "System Status", [
+                    pushScreen(detailScreen("Σ", "System Status", [
                         "Model: on-device",
                         "Load: 12%",
                         "Context: 4k tokens"
@@ -1874,7 +1874,7 @@ function openAI() {
                     break;
 
                 case 2:
-                    runThenShow("🤖", "Analyze Signal", "Analyzing last capture...", [
+                    runThenShow("Σ", "Analyze Signal", "Analyzing last capture...", [
                         "Likely protocol: OOK",
                         "Bit length: 24",
                         "Confidence: 82%"
@@ -1882,7 +1882,7 @@ function openAI() {
                     break;
 
                 case 3:
-                    pushScreen(detailScreen("🤖", "About Device", [
+                    pushScreen(detailScreen("Σ", "About Device", [
                         "Flipper One is a",
                         "multi-tool for radio,",
                         "network and hardware",
@@ -1891,7 +1891,7 @@ function openAI() {
                     break;
 
                 case 4:
-                    pushScreen(detailScreen("🤖", "Generate Code", [
+                    pushScreen(detailScreen("Σ", "Generate Code", [
                         "def read_rssi():",
                         "    return radio.rssi()",
                         "",
@@ -1900,7 +1900,7 @@ function openAI() {
                     break;
 
                 case 5:
-                    pushScreen(detailScreen("🤖", "About AI", [
+                    pushScreen(detailScreen("Σ", "About AI", [
                         "Local inference module",
                         "for quick analysis of",
                         "captured signals."
@@ -1920,7 +1920,7 @@ function openAIChat() {
     screen.innerHTML = `
 
         <div class="status">
-            <span>🤖 AI CHAT</span>
+            <span>Σ AI CHAT</span>
             <span>BAT ${batteryPct}%</span>
         </div>
 
@@ -1999,7 +1999,7 @@ function renderTerminal() {
     screen.innerHTML = `
 
         <div class="status">
-            <span>💻 TERMINAL</span>
+            <span>▣ TERMINAL</span>
             <span>${batteryPct}%</span>
         </div>
 
@@ -2102,7 +2102,7 @@ function renderCalculator() {
     screen.innerHTML = `
 
         <div class="status">
-            <span>🔧 CALCULATOR</span>
+            <span>▪ CALCULATOR</span>
             <span>${batteryPct}%</span>
         </div>
 
@@ -2158,7 +2158,7 @@ function openStopwatch() {
 
     const render = () => {
 
-        appFrame("🔧", "Stopwatch", [
+        appFrame("▪", "Stopwatch", [
             `Time: ${fmt(seconds)}`,
             running ? "▶ Stop" : "▶ Start",
             "   Reset"
@@ -2216,7 +2216,7 @@ function openCountdown() {
 
     const render = () => {
 
-        appFrame("🔧", "Timer", [
+        appFrame("▪", "Timer", [
             `Remaining: ${remaining}s`,
             running ? "▶ Pause" : "▶ Start",
             "   Reset to 60s"
@@ -2280,7 +2280,7 @@ function openRandom() {
 
     pushScreen({
 
-        render: () => appFrame("🔧", "Random Number", [
+        render: () => appFrame("▪", "Random Number", [
             `Value: ${value}`,
             "▶ Roll Again"
         ], "◀ Back"),
@@ -2302,7 +2302,7 @@ function openDeviceTest() {
     const rows = tests.map(t => `${t}: pending`);
 
     pushScreen({
-        render: () => appFrame("🔧", "Device Test", rows, "Running..."),
+        render: () => appFrame("▪", "Device Test", rows, "Running..."),
         onSelect: null
     });
 
@@ -2361,8 +2361,8 @@ function pushFileListing() {
 
     pushScreen({
 
-        render: () => appFrame("📂", pathLabel(), dir.children.map((c, i) =>
-            `${i === 0 ? "▶" : " "} ${c.type === "dir" ? "📁" : "📄"} ${c.name}`
+        render: () => appFrame("▭", pathLabel(), dir.children.map((c, i) =>
+            `${i === 0 ? "▶" : " "} ${c.type === "dir" ? "▤" : "▫"} ${c.name}`
         )),
 
         onSelect: (index) => {
@@ -2378,7 +2378,7 @@ function pushFileListing() {
 
             } else {
 
-                pushScreen(detailScreen("📂", entry.name, entry.content.split("\n")));
+                pushScreen(detailScreen("▭", entry.name, entry.content.split("\n")));
 
             }
 
@@ -2457,7 +2457,7 @@ function openSettings() {
                     break;
 
                 case 5:
-                    pushScreen(detailScreen("⚙️", "About Device", [
+                    pushScreen(detailScreen("⚙", "About Device", [
                         "Flipper One",
                         "Firmware: 1.4.2",
                         "Serial: FL1-0042"
@@ -2478,7 +2478,7 @@ function openSettings() {
 
 function renderSettingsScreen() {
 
-    appFrame("⚙️", "Settings", [
+    appFrame("⚙", "Settings", [
         `▶ Brightness: ${settingsState.brightness}%`,
         `   Sound: ${settingsState.sound ? "ON" : "OFF"}`,
         `   Vibration: ${settingsState.vibration ? "ON" : "OFF"}`,
@@ -2501,7 +2501,7 @@ function openApps() {
 
     pushScreen({
 
-        render: () => appFrame("🧩", "Apps", [
+        render: () => appFrame("▦", "Apps", [
             "▶ Installed: " + installedApps.length,
             "   Updates",
             "   App Manager",
@@ -2516,15 +2516,15 @@ function openApps() {
 
                 case 0:
                 case 2:
-                    pushScreen(detailScreen("🧩", "App Manager", installedApps));
+                    pushScreen(detailScreen("▦", "App Manager", installedApps));
                     break;
 
                 case 1:
-                    pushScreen(detailScreen("🧩", "Updates", ["All apps up to date ✔"]));
+                    pushScreen(detailScreen("▦", "Updates", ["All apps up to date ✔"]));
                     break;
 
                 case 3:
-                    pushScreen(detailScreen("🧩", "Storage", [
+                    pushScreen(detailScreen("▦", "Storage", [
                         "Used: 2.1 MB",
                         "Free: 510 KB",
                         "Total: 512 KB internal"
@@ -2532,7 +2532,7 @@ function openApps() {
                     break;
 
                 case 4:
-                    pushScreen(detailScreen("🧩", "Permissions", [
+                    pushScreen(detailScreen("▦", "Permissions", [
                         "Radio: allowed",
                         "Network: allowed",
                         "Files: allowed"
@@ -2570,14 +2570,14 @@ function openModules() {
 
     pushScreen({
 
-        render: () => appFrame("🔌", "Modules", modules.map((m, i) =>
+        render: () => appFrame("▥", "Modules", modules.map((m, i) =>
             `${i === 0 ? "▶" : " "} ${m.name}`
         )),
 
         onSelect: (index) => {
 
             const m = modules[index];
-            pushScreen(detailScreen("🔌", m.name, m.detail));
+            pushScreen(detailScreen("▥", m.name, m.detail));
 
         }
 
